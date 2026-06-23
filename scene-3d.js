@@ -1,4 +1,4 @@
-﻿// --- 3D Scene ---
+// --- 3D Scene ---
 (function() {
     const container = document.getElementById('canvas-container');
     if (!container) { return; }
@@ -86,8 +86,8 @@
 
                 window.dispatchEvent(new CustomEvent('model-ready'));
             }, (xhr) => {
-                if (xhr.total > 0) {
-                    var pct = Math.round((xhr.loaded / xhr.total) * 100);
+                var total = xhr.total || 10695828;
+                    var pct = Math.round((xhr.loaded / total) * 100);
                     window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
                 }
             }, () => {

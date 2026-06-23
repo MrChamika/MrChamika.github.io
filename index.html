@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ddwadwad MASTERS - Premium Puffer Jackets</title>
+    <title>Jacket Masters - Premium Puffer Jackets</title>
     <!-- Preconnect for third-party origins -->
     <link rel="preconnect" href="https://www.gstatic.com">
     <link rel="preconnect" href="https://firestore.googleapis.com">
@@ -16,7 +16,10 @@
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
         rel="stylesheet">
     <!-- FontAwesome for Icons -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'"><noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
     <!-- Stylesheet -->
     <link rel="icon" type="image/png" href="letter-e.png">
     <link rel="stylesheet" href="style.css">
@@ -25,11 +28,7 @@
 <body class="theme-orange">
     <!-- Water Fill Preloader -->
     <div class="preloader" id="page-preloader">
-        <h2 class="water-text" data-text="ddwadwad MASTERS">ddwadwad MASTERS</h2>
-        <div class="preloader-bar-container">
-            <div class="preloader-bar"><div class="preloader-bar-fill" id="preloader-bar"></div></div>
-            <span class="preloader-percent" id="preloader-percent">0%</span>
-        </div>
+        <h2 class="water-text" data-text="JACKET MASTERS">JACKET MASTERS</h2>
     </div>
 
     <!-- Three.js Canvas Container -->
@@ -113,7 +112,7 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <span class="logo-bold">ddwadwad</span><span>MASTERS</span>
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
             </div>
             <div class="footer-nav">
                 <a href="index.html">Home</a>
@@ -126,33 +125,48 @@
                 <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
                 <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
             </div>
-            <div class="footer-copy">&copy; 2026 ddwadwad MASTERS. All rights reserved.</div>
+            <div class="footer-copy">&copy; 2026 Jacket Masters. All rights reserved.</div>
         </div>
     </footer>
 
-    <!-- Three.js and GLTFLoader (deferred - don't block HTML parsing) -->
+    <!-- Three.js and GLTFLoader with Draco decompression (deferred) -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-
+    <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader Script with real-time progress bar -->
+    <!-- Preloader Script (dismisses only when 3D model signals ready or on error) -->
     <script>
         function hidePreloader() {
-            var el = document.getElementById('page-preloader');
-            if (el) el.classList.add('hidden');
+            var el = document.getElementById("page-preloader");
+            if (el) el.classList.add("hidden");
         }
         function updateProgress(pct) {
-            var bar = document.getElementById('preloader-bar');
-            var label = document.getElementById('preloader-percent');
-            if (bar) bar.style.width = pct + '%';
-            if (label) label.textContent = pct + '%';
+            var bar = document.getElementById("preloader-bar");
+            var label = document.getElementById("preloader-percent");
+            if (bar) bar.style.width = Math.min(pct, 100) + "%";
+            if (label) label.textContent = Math.min(pct, 100) + "%";
         }
-        window.addEventListener('model-ready', hidePreloader);
-        window.addEventListener('model-progress', function(e) {
-            updateProgress(e.detail);
+        var simProgress = 0;
+        var simTimer = setInterval(function() {
+            if (simProgress < 70) {
+                simProgress += 0.5 + (70 - simProgress) * 0.02;
+                updateProgress(Math.round(simProgress));
+            }
+        }, 200);
+        window.addEventListener("model-ready", function() {
+            clearInterval(simTimer);
+            updateProgress(100);
+            hidePreloader();
+        });
+        window.addEventListener("model-progress", function(e) {
+            var real = e.detail;
+            if (real > simProgress) {
+                simProgress = real;
+                updateProgress(real);
+            }
         });
         updateProgress(0);
     </script>
@@ -180,16 +194,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
