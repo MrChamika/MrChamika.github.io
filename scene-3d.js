@@ -33,82 +33,95 @@
         entries.forEach(entry => {
             if (!entry.isIntersecting) return;
             observer.disconnect();
-            const loader = new THREE.GLTFLoader();
-            loader.load('jacket.glb', (gltf) => {
-                const model = gltf.scene;
 
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const s = maxDim > 0 ? 3.0 / maxDim : 1;
-
-                const centerMat = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
-                const scaleMat = new THREE.Matrix4().makeScale(s, s, s);
-
-                model.traverse((child) => {
-                    if (!child.isMesh) return;
-
-                    child.updateWorldMatrix(true, false);
-                    const worldMat = child.matrixWorld.clone();
-
-                    const finalMat = new THREE.Matrix4().copy(worldMat);
-                    finalMat.premultiply(centerMat);
-                    finalMat.premultiply(scaleMat);
-
-                    const geo = child.geometry.clone();
-                    const pos = geo.getAttribute('position');
-                    if (pos) {
-                        const vec = new THREE.Vector3();
-                        for (let i = 0; i < pos.count; i++) {
-                            vec.fromBufferAttribute(pos, i);
-                            vec.applyMatrix4(finalMat);
-                            pos.setXYZ(i, vec.x, vec.y, vec.z);
-                        }
-                        pos.needsUpdate = true;
-                        geo.computeVertexNormals();
-                    }
-
-                    if (child.material) {
-                        const mats = Array.isArray(child.material) ? child.material : [child.material];
-                        const newMats = mats.map(m => {
-                            const nm = m.clone();
-                            nm.transparent = false;
-                            nm.opacity = 1;
-                            return nm;
-                        });
-                        const mesh = new THREE.Mesh(geo, newMats.length === 1 ? newMats[0] : newMats);
-                        mesh.frustumCulled = false;
-                        jacketGroup.add(mesh);
-                    }
-                });
-
-                window.dispatchEvent(new CustomEvent('model-ready'));
-            }, (xhr) => {
-                var total = xhr.total || 4458960;
-                var pct = Math.round((xhr.loaded / total) * 100);
+            // Download with XHR for real progress events
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'jacket.glb', true);
+            xhr.responseType = 'arraybuffer';
+            xhr.onprogress = function(e) {
+                var total = e.total || 4458960;
+                var pct = Math.round((e.loaded / total) * 100);
                 window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
-            }, () => {
+            };
+            xhr.onerror = function() {
                 window.dispatchEvent(new CustomEvent('model-ready'));
-            });
+            };
+            xhr.onload = function() {
+                window.dispatchEvent(new CustomEvent('model-progress', { detail: 100 }));
+                var loader = new THREE.GLTFLoader();
+                loader.parse(xhr.response, '', function(gltf) {
+                    var model = gltf.scene;
+
+                    var box = new THREE.Box3().setFromObject(model);
+                    var center = box.getCenter(new THREE.Vector3());
+                    var size = box.getSize(new THREE.Vector3());
+                    var maxDim = Math.max(size.x, size.y, size.z);
+                    var s = maxDim > 0 ? 3.0 / maxDim : 1;
+
+                    var centerMat = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+                    var scaleMat = new THREE.Matrix4().makeScale(s, s, s);
+
+                    model.traverse(function(child) {
+                        if (!child.isMesh) return;
+
+                        child.updateWorldMatrix(true, false);
+                        var worldMat = child.matrixWorld.clone();
+
+                        var finalMat = new THREE.Matrix4().copy(worldMat);
+                        finalMat.premultiply(centerMat);
+                        finalMat.premultiply(scaleMat);
+
+                        var geo = child.geometry.clone();
+                        var pos = geo.getAttribute('position');
+                        if (pos) {
+                            var vec = new THREE.Vector3();
+                            for (var i = 0; i < pos.count; i++) {
+                                vec.fromBufferAttribute(pos, i);
+                                vec.applyMatrix4(finalMat);
+                                pos.setXYZ(i, vec.x, vec.y, vec.z);
+                            }
+                            pos.needsUpdate = true;
+                            geo.computeVertexNormals();
+                        }
+
+                        if (child.material) {
+                            var mats = Array.isArray(child.material) ? child.material : [child.material];
+                            var newMats = mats.map(function(m) {
+                                var nm = m.clone();
+                                nm.transparent = false;
+                                nm.opacity = 1;
+                                return nm;
+                            });
+                            var mesh = new THREE.Mesh(geo, newMats.length === 1 ? newMats[0] : newMats);
+                            mesh.frustumCulled = false;
+                            jacketGroup.add(mesh);
+                        }
+                    });
+
+                    window.dispatchEvent(new CustomEvent('model-ready'));
+                }, function() {
+                    window.dispatchEvent(new CustomEvent('model-ready'));
+                });
+            };
+            xhr.send();
         });
     }, { threshold: 0 });
     observer.observe(container);
 
-    const clock = new THREE.Clock();
+    var clock = new THREE.Clock();
     function getYOffset() {
         return window.innerWidth < 768 ? 0.6 : 0;
     }
     function animate() {
         requestAnimationFrame(animate);
-        const t = clock.getElapsedTime();
+        var t = clock.getElapsedTime();
         jacketGroup.rotation.y += (Math.sin(t * 0.3) * Math.PI - jacketGroup.rotation.y) * 0.04;
         jacketGroup.position.y = getYOffset() + Math.sin(t * 0.5) * 0.05;
         renderer.render(scene, camera);
     }
     animate();
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', function() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
