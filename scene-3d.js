@@ -28,14 +28,13 @@
     const jacketGroup = new THREE.Group();
     scene.add(jacketGroup);
 
-    // Lazy load the 10.7 MB model only when container is visible
+    // Lazy load the model only when container is visible
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (!entry.isIntersecting) return;
             observer.disconnect();
             const loader = new THREE.GLTFLoader();
             loader.load('jacket.glb', (gltf) => {
-                updateProgress(100);
                 const model = gltf.scene;
 
                 const box = new THREE.Box3().setFromObject(model);
@@ -87,9 +86,8 @@
                 window.dispatchEvent(new CustomEvent('model-ready'));
             }, (xhr) => {
                 var total = xhr.total || 10695828;
-                    var pct = Math.round((xhr.loaded / total) * 100);
-                    window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
-                }
+                var pct = Math.round((xhr.loaded / total) * 100);
+                window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
             }, () => {
                 window.dispatchEvent(new CustomEvent('model-ready'));
             });
@@ -116,7 +114,3 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 })();
-
-
-
-

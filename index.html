@@ -169,6 +169,14 @@
             }
         });
         updateProgress(0);
+
+        // Safety: dismiss preloader after 20s regardless
+        setTimeout(function() {
+            var el = document.getElementById("page-preloader");
+            if (el && !el.classList.contains("hidden")) {
+                hidePreloader();
+            }
+        }, 20000);
     </script>
 
     <!-- Main Script (Firebase + Store Logic) -->
