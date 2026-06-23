@@ -155,30 +155,30 @@
             if (bar) bar.style.width = Math.min(pct, 100) + "%";
             if (label) label.textContent = Math.min(pct, 100) + "%";
         }
-        var simProgress = 0;
-        var simTimer = setInterval(function() {
-            if (simProgress < 100) {
-                simProgress++;
-                updateProgress(simProgress);
-            }
-        }, 50);
-        // Show 1% immediately so user sees progress right away
-        updateProgress(1);
-        simProgress = 1;
         var preloaderStart = Date.now();
+
+        // Real progress tracking: DOMContentLoaded = 25%, window.onload = 40%, model = 100%
+        function realProgress(pct) {
+            updateProgress(pct);
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            realProgress(25);
+        });
+        window.addEventListener("load", function() {
+            realProgress(40);
+        });
+
+        window.addEventListener("model-progress", function(e) {
+            // model progress: scale 0-100% to 40-100% of total bar
+            var modelPct = e.detail;
+            var totalPct = 40 + Math.round(modelPct * 0.6);
+            updateProgress(totalPct);
+        });
         window.addEventListener("model-ready", function() {
-            clearInterval(simTimer);
             updateProgress(100);
             var elapsed = Date.now() - preloaderStart;
             var remaining = Math.max(0, 2000 - elapsed);
             setTimeout(hidePreloader, remaining);
-        });
-        window.addEventListener("model-progress", function(e) {
-            var real = e.detail;
-            if (real > simProgress) {
-                simProgress = real;
-                updateProgress(real);
-            }
         });
         updateProgress(0);
 
