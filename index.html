@@ -157,11 +157,14 @@
         }
         var simProgress = 0;
         var simTimer = setInterval(function() {
-            if (simProgress < 70) {
-                simProgress += 0.5 + (70 - simProgress) * 0.02;
-                updateProgress(Math.round(simProgress));
+            if (simProgress < 100) {
+                simProgress++;
+                updateProgress(simProgress);
             }
-        }, 200);
+        }, 50);
+        // Show 1% immediately so user sees progress right away
+        updateProgress(1);
+        simProgress = 1;
         var preloaderStart = Date.now();
         window.addEventListener("model-ready", function() {
             clearInterval(simTimer);
