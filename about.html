@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Jacket Masters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="icon" type="image/png" href="letter-e.png">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { min-height: 100vh; background: #0a0a0a; color: #fff; }
+        .page-content { padding: 120px 5% 60px; max-width: 900px; margin: 0 auto; text-align: center; position: relative; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 30px; }
+        .page-text { font-size: 1.2rem; line-height: 1.8; color: #ccc; margin-bottom: 20px; text-align: left; }
+    </style>
+</head>
+<body class="theme-blue">
+    <div class="bg-glow"></div>
+
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html" style="text-decoration:none; color:inherit;">
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item">HOME</a>
+            <a href="#" class="nav-item active">ABOUT US</a>
+            <a href="contact.html" class="nav-item">CONTACT</a>
+        </nav>
+        <div class="header-actions">
+            <a href="cart.html" class="action-btn cart-btn" aria-label="Cart" style="color:inherit; text-decoration:none;">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </a>
+        </div>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
+    <main class="page-content">
+        <h1 class="page-title">Our Story</h1>
+        <img src="about-image.jpg" alt="About Us" loading="lazy" style="width:100%; border-radius: 12px; margin-bottom: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <p class="page-text">Founded in the heart of winter, Jacket Masters was born out of a simple necessity: the desire to conquer the cold without sacrificing style. We believe that outerwear should be more than just a functional necessity; it should be a statement of confidence.</p>
+        <p class="page-text">Our premium puffer jackets are engineered using advanced heat-retention technology, lightweight materials, and weather-sealed layers to ensure maximum comfort in sub-zero temperatures. But beyond the engineering, we focus on the silhouette, the drape, and the aesthetic finish.</p>
+        <p class="page-text" style="text-align: center; margin-top: 50px; font-style: italic; font-family: 'Playfair Display', serif; font-size: 1.5rem;">"Stand out. Without trying."</p>
+    </main>
+
+    <script>
+        function toggleMobileMenu() {
+            var nav = document.querySelector('.nav-links');
+            var icon = document.querySelector('#menu-toggle i');
+            if (!nav) return;
+            nav.classList.toggle('open');
+            if (icon) icon.className = nav.classList.contains('open') ? 'fa-solid fa-times' : 'fa-solid fa-bars';
+        }
+        document.querySelectorAll('.nav-links .nav-item').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.remove('open');
+                var icon = document.querySelector('#menu-toggle i');
+                if (icon) icon.className = 'fa-solid fa-bars';
+            });
+        });
+    </script>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            </div>
+            <div class="footer-nav">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="admin.html">Admin</a>
+            </div>
+            <div class="footer-social">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+            <div class="footer-copy">&copy; 2026 Jacket Masters. All rights reserved.</div>
+        </div>
+    </footer>
+</body>
+</html>
+

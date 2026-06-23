@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacket Masters - Store Control Panel</title>
+        <!-- Preconnect for third-party origins -->
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- Stylesheet -->
+    <link rel="icon" type="image/png" href="letter-e.png">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+
+    <header class="admin-header">
+        <div class="logo">
+            <span class="logo-bold">JACKET</span><span>MASTERS</span>
+        </div>
+        <div class="header-center">
+            <span class="control-badge">CONTROL PANEL</span>
+        </div>
+        <div class="header-actions">
+            <a href="index.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left-long"></i> Back to Storefront
+            </a>
+            <button class="logout-btn" onclick="window.logoutAdmin()">Logout</button>
+        </div>
+    </header>
+
+    <main class="admin-container">
+
+        <!-- Left Side: Add Product Form -->
+        <section class="admin-card form-section">
+            <h2 class="card-title"><i class="fa-solid fa-plus-circle"></i> Add New Product</h2>
+            <p class="card-subtitle">Create a new puffer jacket variant. Fields marked * are required.</p>
+
+            <form id="add-product-form" class="product-form">
+
+                <div class="form-group">
+                    <label for="prod-title">Product Name *</label>
+                    <input type="text" id="prod-title" name="title" required placeholder="e.g. Blizzard Stealth Coat">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prod-price">Price (Rs.) *</label>
+                        <input type="number" id="prod-price" name="price" required min="1" placeholder="e.g. 17900">
+                    </div>
+                    <div class="form-group">
+                        <label>Product Tag (Optional)</label>
+                        <div class="tag-selector-grid">
+                            <label class="tag-chip"><input type="radio" name="badge" value="" checked> None</label>
+                            <label class="tag-chip"><input type="radio" name="badge" value="Best Selling"> Best
+                                Selling</label>
+                            <label class="tag-chip"><input type="radio" name="badge" value="New Arrival"> New
+                                Arrival</label>
+                            <label class="tag-chip"><input type="radio" name="badge" value="Limited Edition"> Limited
+                                Edition</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Selector -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Theme *</label>
+                        <div class="tag-selector-grid">
+                            <label class="tag-chip"><input type="radio" name="theme" value="orange" checked> <span style="color:#ff6a00;">Orange</span></label>
+                            <label class="tag-chip"><input type="radio" name="theme" value="blue"> <span style="color:#00d2ff;">Blue</span></label>
+                            <label class="tag-chip"><input type="radio" name="theme" value="black"> <span style="color:#ffffff;">Black</span></label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sizes & Colors -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Available Sizes *</label>
+                        <div class="size-selector-grid">
+                            <label class="size-chip"><input type="checkbox" name="size" value="S"> S</label>
+                            <label class="size-chip"><input type="checkbox" name="size" value="M" checked> M</label>
+                            <label class="size-chip"><input type="checkbox" name="size" value="L" checked> L</label>
+                            <label class="size-chip"><input type="checkbox" name="size" value="XL"> XL</label>
+                            <label class="size-chip"><input type="checkbox" name="size" value="XXL"> XXL</label>
+                        </div>
+                        <p class="field-hint">Select all sizes this product is available in.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Available Colors *</label>
+                        <div class="color-selector-grid">
+                            <label class="color-chip" data-hex="#ff6a00">
+                                <input type="checkbox" name="color" value="Fire Orange" checked>
+                                <span class="color-dot" style="background:#ff6a00;"></span>
+                                <span class="color-label">Orange</span>
+                            </label>
+                            <label class="color-chip" data-hex="#00d2ff">
+                                <input type="checkbox" name="color" value="Ice Blue">
+                                <span class="color-dot" style="background:#00d2ff;"></span>
+                                <span class="color-label">Blue</span>
+                            </label>
+                            <label class="color-chip" data-hex="#333333">
+                                <input type="checkbox" name="color" value="Shadow Black">
+                                <span class="color-dot" style="background:#333333;"></span>
+                                <span class="color-label">Black</span>
+                            </label>
+                            <label class="color-chip" data-hex="#f0f0f0">
+                                <input type="checkbox" name="color" value="Arctic White">
+                                <span class="color-dot"
+                                    style="background:#f0f0f0; border-color:rgba(255,255,255,0.3);"></span>
+                                <span class="color-label">White</span>
+                            </label>
+                        </div>
+                        <p class="field-hint">Select all colors this product is available in.</p>
+                        <div class="add-color-row">
+                            <input type="text" id="custom-color-name" placeholder="Color name" maxlength="30">
+                            <input type="color" id="custom-color-hex" value="#ff6a00">
+                            <button type="button" id="add-color-btn" class="add-color-btn"><i
+                                    class="fa-solid fa-plus"></i> Add Color</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden editing state -->
+                <input type="hidden" id="editing-id" value="">
+
+                <!-- Image Selection Panel -->
+                <div class="form-group">
+                    <label>Product Image Source *</label>
+                    <div class="image-source-tabs">
+                        <button type="button" class="tab-btn active" id="tab-file">
+                            <i class="fa-solid fa-file-arrow-up"></i> Upload File
+                        </button>
+                        <button type="button" class="tab-btn" id="tab-url">
+                            <i class="fa-solid fa-link"></i> Web Image URL
+                        </button>
+                    </div>
+
+                    <!-- File Input Box -->
+                    <div id="content-file">
+                        <div class="file-upload-zone" id="file-upload-zone">
+                            <i class="fa-solid fa-images upload-icon"></i>
+                            <p class="upload-text">Drag &amp; drop up to 5 images here, or <span>browse files</span></p>
+                            <p class="upload-hint">Supports PNG, JPG (Max 5 images). First image will be the main cover.
+                            </p>
+                            <input type="file" id="prod-image-file" accept="image/*" multiple style="display: none;">
+                        </div>
+                        <div class="file-preview-container" id="file-preview-container"
+                            style="display: none; text-align: center;">
+                            <div id="preview-thumbnails"
+                                style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
+                            </div>
+                            <button type="button" class="remove-preview-btn" id="remove-preview-btn">
+                                <i class="fa-solid fa-xmark"></i> Clear Images
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- URL Input Box -->
+                    <div id="content-url" style="display: none;">
+                        <textarea id="prod-image-url" rows="5" placeholder="Paste up to 5 image URLs (one per line)..."
+                            style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; font-family: 'Montserrat', sans-serif; resize: vertical;"></textarea>
+                        <p class="field-hint">Tip: The first URL will be the main product cover.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="prod-desc">Description *</label>
+                    <textarea id="prod-desc" name="description" rows="4" required
+                        placeholder="Describe the materials, comfort features, zipper quality, and overall fit..."></textarea>
+                </div>
+
+                <div class="form-edit-actions">
+                    <button type="button" class="cancel-edit-btn" id="cancel-edit-btn" style="display:none;">
+                        <i class="fa-solid fa-xmark"></i> Cancel Edit
+                    </button>
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        <i class="fa-solid fa-check-double"></i> Save Product to Store
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Right Side: Catalog List -->
+        <section class="admin-card list-section">
+            <div class="list-header">
+                <div>
+                    <h2 class="card-title"><i class="fa-solid fa-list-check"></i> Manage Store Catalog</h2>
+                    <p class="card-subtitle">List of active products currently available on your website.</p>
+                </div>
+                <button type="button" class="reset-btn" id="reset-catalog-btn"
+                    title="Restores store to default 3 jackets">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Store
+                </button>
+            </div>
+
+            <!-- Scrollable product listing container -->
+            <div class="catalog-list-container">
+                <div class="catalog-header-row">
+                    <div class="hdr-item col-img">Image</div>
+                    <div class="hdr-item col-title">Name &amp; Specs</div>
+                    <div class="hdr-item col-price">Price</div>
+                    <div class="hdr-item col-action">Actions</div>
+                </div>
+
+                <div class="catalog-items-wrapper" id="catalog-items-wrapper">
+                    <!-- Loaded dynamically via admin.js -->
+                </div>
+            </div>
+
+            <!-- New Payment Methods Section -->
+            <div style="margin-top: 40px;">
+                <div class="list-header">
+                    <div>
+                        <h2 class="card-title"><i class="fa-solid fa-credit-card"></i> Payment Methods</h2>
+                        <p class="card-subtitle">Manage available payment options for checkout.</p>
+                    </div>
+                    <button type="button" class="reset-btn" onclick="window.addPaymentMethod()">
+                        <i class="fa-solid fa-plus"></i> Add Method
+                    </button>
+                </div>
+                <div id="payment-methods-list" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- New Social Media Section -->
+            <div style="margin-top: 40px;">
+                <div class="list-header">
+                    <div>
+                        <h2 class="card-title"><i class="fa-solid fa-hashtag"></i> Social Media Links</h2>
+                        <p class="card-subtitle">Update links for the storefront icons.</p>
+                    </div>
+                    <button type="button" class="reset-btn" onclick="window.saveSocialLinks()">
+                        <i class="fa-solid fa-save"></i> Save Links
+                    </button>
+                </div>
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-brands fa-instagram" style="width: 20px;"></i>
+                        <input type="text" id="social-instagram" placeholder="Instagram URL"
+                            style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-brands fa-facebook-f" style="width: 20px;"></i>
+                        <input type="text" id="social-facebook" placeholder="Facebook URL"
+                            style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-brands fa-x-twitter" style="width: 20px;"></i>
+                        <input type="text" id="social-twitter" placeholder="Twitter URL"
+                            style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Orders Section -->
+            <div style="margin-top: 40px;">
+                <h2 class="card-title"><i class="fa-solid fa-box-open"></i> Customer Orders</h2>
+                <p class="card-subtitle">Recent orders placed on the storefront.</p>
+                <div id="orders-list" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Main Controller Scripts -->
+    <script type="module" src="admin.js"></script>
+</body>
+
+</html>
+
+
+
+

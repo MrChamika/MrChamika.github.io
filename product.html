@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Jacket Masters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Product Page Specific Overrides */
+        body { min-height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; }
+        .product-hero { flex: 1; display: flex; align-items: center; justify-content: center; padding: 100px 5%; position: relative; }
+        .product-container { display: flex; max-width: 1200px; width: 100%; gap: 50px; align-items: center; background: rgba(25, 25, 25, 0.6); padding: 40px; border-radius: 20px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .product-image-box { flex: 1; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .product-image-box img { width: 100%; height: auto; display: block; object-fit: cover; }
+        .product-info-box { flex: 1; color: #fff; }
+        .badge { display: inline-block; padding: 5px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); }
+        .product-title { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 20px; line-height: 1.1; }
+        .product-price { font-size: 2rem; font-weight: 300; margin-bottom: 30px; color: var(--text-color, #fff); }
+        .product-description { font-size: 1.1rem; line-height: 1.8; color: #aaa; margin-bottom: 40px; }
+        
+        .add-to-cart-large { display: inline-flex; align-items: center; gap: 15px; background: #fff; color: #000; padding: 18px 40px; border-radius: 30px; font-weight: 600; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+        .add-to-cart-large:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+        
+        .loading { text-align: center; color: #fff; font-size: 1.5rem; width: 100%; padding: 100px 0; }
+        
+        @media (max-width: 900px) {
+            .product-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="theme-black">
+    <div class="bg-glow" id="dynamic-glow"></div>
+
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html" style="text-decoration:none; color:inherit;">
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item">HOME</a>
+            <a href="about.html" class="nav-item">ABOUT US</a>
+            <a href="contact.html" class="nav-item">CONTACT</a>
+        </nav>
+        <div class="header-actions">
+            <a href="cart.html" class="action-btn cart-btn" aria-label="Cart" style="color:inherit; text-decoration:none;">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count" style="display:none;">0</span>
+            </a>
+        </div>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
+    <main class="product-hero">
+        <div id="product-content" style="width: 100%;">
+            <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading product...</div>
+        </div>
+    </main>
+
+    <script type="module" src="product.js"></script>
+    <!-- Mobile Menu Toggle -->
+    <script>
+        function toggleMobileMenu() {
+            var nav = document.querySelector('.nav-links');
+            var icon = document.querySelector('#menu-toggle i');
+            if (!nav) return;
+            nav.classList.toggle('open');
+            if (icon) icon.className = nav.classList.contains('open') ? 'fa-solid fa-times' : 'fa-solid fa-bars';
+        }
+        document.querySelectorAll('.nav-links .nav-item').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.remove('open');
+                var icon = document.querySelector('#menu-toggle i');
+                if (icon) icon.className = 'fa-solid fa-bars';
+            });
+        });
+    </script>
+</body>
+</html>
+

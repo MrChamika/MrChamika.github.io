@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacket Masters - Premium Puffer Jackets</title>
+    <!-- Preconnect for third-party origins -->
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://firestore.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- Stylesheet -->
+    <link rel="icon" type="image/png" href="letter-e.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="theme-orange">
+    <!-- Water Fill Preloader -->
+    <div class="preloader" id="page-preloader">
+        <h2 class="water-text" data-text="JACKET MASTERS">JACKET MASTERS</h2>
+    </div>
+
+    <!-- Three.js Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Background Accent Glows -->
+    <div class="bg-glow"></div>
+
+    <!-- Main Navigation Header -->
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-bold">JACKET</span><span>MASTERS</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="nav-item active">HOME</a>
+            <a href="#products-section" class="nav-item">ALL PRODUCTS</a>
+            <a href="about.html" class="nav-item">ABOUT US</a>
+            <a href="contact.html" class="nav-item">CONTACT</a>
+        </nav>
+        <div class="header-actions">
+            <button class="action-btn" aria-label="Favorites">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+            <a href="cart.html" class="action-btn cart-btn" aria-label="Cart"
+                style="text-decoration:none; color:inherit;">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count" style="display:none;">0</span>
+            </a>
+        </div>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Main Hero Layout -->
+    <main class="hero-container">
+
+        <!-- Left Side Information Panel -->
+        <section class="left-panel">
+            <div class="content-wrapper">
+                <h1 class="main-headline">
+                    <span class="headline-top">Premium</span>
+                    <span class="headline-bottom">Basketball Jacket</span>
+                </h1>
+                <p class="description-text">
+                    When it's not just about staying warm, it's about stepping outside and instantly feeling confident,
+                    comfortable, and completely yourself. Designed to elevate even the simplest outfit, this jacket
+                    wraps you in lightweight warmth.
+                </p>
+                <div class="cta-wrapper">
+                    <a href="#products-section" class="cta-button">
+                        Shop Now <i class="fa-solid fa-arrow-right-long"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Vertical Social Links -->
+            <div class="social-links">
+                <a href="#" id="link-instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" id="link-facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" id="link-twitter" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Dynamic Product Showcase Section -->
+    <section id="products-section" class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">THE COLLECTION</h2>
+            <p class="section-subtitle">Premium outerwear engineered for ultimate comfort and aesthetic distinction.</p>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+            <!-- Dynamic product cards will be loaded here via JS -->
+        </div>
+    </section>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            </div>
+            <div class="footer-nav">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="admin.html">Admin</a>
+            </div>
+            <div class="footer-social">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+            <div class="footer-copy">&copy; 2026 Jacket Masters. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- Three.js and GLTFLoader with Draco decompression (deferred) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+    <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
+    <script defer src="scene-3d.js"></script>
+
+    <!-- Preloader Script (dismisses only when 3D model signals ready or on error) -->
+    <script>
+        function hidePreloader() {
+            var el = document.getElementById('page-preloader');
+            if (el) el.classList.add('hidden');
+        }
+        window.addEventListener('model-ready', hidePreloader);
+    </script>
+
+    <!-- Main Script (Firebase + Store Logic) -->
+    <script type="module" src="script.js"></script>
+
+    <!-- Mobile Menu Toggle -->
+    <script>
+        function toggleMobileMenu() {
+            var nav = document.querySelector('.nav-links');
+            var icon = document.querySelector('#menu-toggle i');
+            if (!nav) return;
+            nav.classList.toggle('open');
+            if (icon) icon.className = nav.classList.contains('open') ? 'fa-solid fa-times' : 'fa-solid fa-bars';
+        }
+        document.querySelectorAll('.nav-links .nav-item').forEach(function (link) {
+            link.addEventListener('click', function () {
+                document.querySelector('.nav-links').classList.remove('open');
+                var icon = document.querySelector('#menu-toggle i');
+                if (icon) icon.className = 'fa-solid fa-bars';
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+

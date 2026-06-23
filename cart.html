@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Jacket Masters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { min-height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; color: #fff; }
+        .cart-container { flex: 1; padding: 100px 5%; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; }
+        .cart-title { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        
+        .cart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+        .cart-items { display: flex; flex-direction: column; gap: 20px; }
+        
+        .cart-item { display: flex; align-items: center; gap: 20px; background: rgba(25, 25, 25, 0.6); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .cart-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .cart-item-info { flex: 1; }
+        .cart-item-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 5px; }
+        .cart-item-price { color: #aaa; }
+        .qty-controls { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .qty-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; }
+        .qty-btn:hover { background: rgba(255,255,255,0.2); }
+        .remove-btn { background: none; border: none; color: #ff4757; cursor: pointer; margin-left: auto; font-size: 1.2rem; }
+        
+        .cart-summary { background: rgba(25, 25, 25, 0.6); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); height: fit-content; }
+        .summary-title { font-size: 1.5rem; margin-bottom: 20px; font-weight: 600; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; color: #ccc; }
+        .summary-total { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 15px; font-size: 1.3rem; color: #fff; font-weight: 600; }
+        
+        .checkout-btn { display: block; width: 100%; text-align: center; background: #fff; color: #000; padding: 15px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; transition: 0.3s; }
+        .checkout-btn:hover { background: #eee; transform: translateY(-2px); }
+        
+        .empty-cart { text-align: center; padding: 50px; color: #aaa; }
+        .empty-cart i { font-size: 3rem; margin-bottom: 15px; }
+
+        .continue-shopping-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .continue-shopping-btn:hover { color: #fff; }
+        
+        @media (max-width: 800px) {
+            .cart-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="theme-black">
+    <div class="bg-glow"></div>
+
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html" style="text-decoration:none; color:inherit;">
+                <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item">HOME</a>
+            <a href="about.html" class="nav-item">ABOUT US</a>
+            <a href="contact.html" class="nav-item">CONTACT</a>
+        </nav>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
+    <main class="cart-container">
+        <h1 class="cart-title">Your Shopping Cart</h1>
+        
+        <div class="cart-grid" id="cart-grid">
+            <!-- Rendered via JS -->
+        </div>
+    </main>
+
+    <script type="module" src="cart.js"></script>
+
+    <!-- Mobile Menu Toggle -->
+    <script>
+        function toggleMobileMenu() {
+            var nav = document.querySelector('.nav-links');
+            var icon = document.querySelector('#menu-toggle i');
+            if (!nav) return;
+            nav.classList.toggle('open');
+            if (icon) icon.className = nav.classList.contains('open') ? 'fa-solid fa-times' : 'fa-solid fa-bars';
+        }
+        document.querySelectorAll('.nav-links .nav-item').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.remove('open');
+                var icon = document.querySelector('#menu-toggle i');
+                if (icon) icon.className = 'fa-solid fa-bars';
+            });
+        });
+    </script>
+</body>
+</html>
+
