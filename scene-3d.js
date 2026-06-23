@@ -35,6 +35,7 @@
             observer.disconnect();
             const loader = new THREE.GLTFLoader();
             loader.load('jacket.glb', (gltf) => {
+                updateProgress(100);
                 const model = gltf.scene;
 
                 const box = new THREE.Box3().setFromObject(model);
@@ -84,7 +85,12 @@
                 });
 
                 window.dispatchEvent(new CustomEvent('model-ready'));
-            }, undefined, () => {
+            }, (xhr) => {
+                if (xhr.total > 0) {
+                    var pct = Math.round((xhr.loaded / xhr.total) * 100);
+                    window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
+                }
+            }, () => {
                 window.dispatchEvent(new CustomEvent('model-ready'));
             });
         });
@@ -110,6 +116,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 })();
+
 
 
 

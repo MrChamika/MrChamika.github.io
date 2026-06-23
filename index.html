@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -26,6 +26,10 @@
     <!-- Water Fill Preloader -->
     <div class="preloader" id="page-preloader">
         <h2 class="water-text" data-text="ddwadwad MASTERS">ddwadwad MASTERS</h2>
+        <div class="preloader-bar-container">
+            <div class="preloader-bar"><div class="preloader-bar-fill" id="preloader-bar"></div></div>
+            <span class="preloader-percent" id="preloader-percent">0%</span>
+        </div>
     </div>
 
     <!-- Three.js Canvas Container -->
@@ -126,21 +130,31 @@
         </div>
     </footer>
 
-    <!-- Three.js and GLTFLoader with Draco decompression (deferred) -->
+    <!-- Three.js and GLTFLoader (deferred - don't block HTML parsing) -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script defer src="https://unpkg.com/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
 
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader Script (dismisses only when 3D model signals ready or on error) -->
+    <!-- Preloader Script with real-time progress bar -->
     <script>
         function hidePreloader() {
             var el = document.getElementById('page-preloader');
             if (el) el.classList.add('hidden');
         }
+        function updateProgress(pct) {
+            var bar = document.getElementById('preloader-bar');
+            var label = document.getElementById('preloader-percent');
+            if (bar) bar.style.width = pct + '%';
+            if (label) label.textContent = pct + '%';
+        }
         window.addEventListener('model-ready', hidePreloader);
+        window.addEventListener('model-progress', function(e) {
+            updateProgress(e.detail);
+        });
+        updateProgress(0);
     </script>
 
     <!-- Main Script (Firebase + Store Logic) -->
@@ -166,6 +180,12 @@
 </body>
 
 </html>
+
+
+
+
+
+
 
 
 

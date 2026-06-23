@@ -102,6 +102,42 @@ body {
     text-align: center;
 }
 
+.preloader-bar-container {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(300px, 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.preloader-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.preloader-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff6a00, #ff8c00);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.preloader-percent {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
 .water-text::before {
     content: attr(data-text);
     position: absolute;
@@ -1323,5 +1359,7 @@ body {
         gap: 0.3rem;
     }
 }
+
+
 
 
