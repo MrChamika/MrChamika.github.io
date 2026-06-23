@@ -85,7 +85,7 @@
 
                 window.dispatchEvent(new CustomEvent('model-ready'));
             }, (xhr) => {
-                var total = xhr.total || 10695828;
+                var total = xhr.total || 4458960;
                 var pct = Math.round((xhr.loaded / total) * 100);
                 window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
             }, () => {

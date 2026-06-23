@@ -157,27 +157,13 @@
         }
         var preloaderStart = Date.now();
 
-        // Real progress tracking: DOMContentLoaded = 25%, window.onload = 40%, model = 100%
-        function realProgress(pct) {
-            updateProgress(pct);
-        }
-        document.addEventListener("DOMContentLoaded", function() {
-            realProgress(25);
-        });
-        window.addEventListener("load", function() {
-            realProgress(40);
-        });
-
+        // Real model download progress
         window.addEventListener("model-progress", function(e) {
-            // model progress: scale 0-100% to 40-100% of total bar
-            var modelPct = e.detail;
-            var totalPct = 40 + Math.round(modelPct * 0.6);
-            updateProgress(totalPct);
+            updateProgress(e.detail);
         });
         window.addEventListener("model-ready", function() {
             updateProgress(100);
-            var elapsed = Date.now() - preloaderStart;
-            var remaining = Math.max(0, 2000 - elapsed);
+            var remaining = Math.max(0, 2000 - (Date.now() - preloaderStart));
             setTimeout(hidePreloader, remaining);
         });
         updateProgress(0);
@@ -208,8 +194,6 @@
                 document.querySelector('.nav-links').classList.remove('open');
                 var icon = document.querySelector('#menu-toggle i');
                 if (icon) icon.className = 'fa-solid fa-bars';
-            });
-        });
     </script>
 </body>
 

@@ -127,6 +127,13 @@ body {
     background: var(--accent-color);
     border-radius: 3px;
     transition: width 0.2s ease;
+    box-shadow: 0 0 6px var(--accent-glow);
+    animation: barBreathing 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes barBreathing {
+    0% { box-shadow: 0 0 4px var(--accent-glow); opacity: 0.6; }
+    100% { box-shadow: 0 0 12px var(--accent-glow); opacity: 1; }
 }
 
 .preloader-percent {
