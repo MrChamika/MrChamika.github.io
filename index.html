@@ -156,10 +156,13 @@
                 updateProgress(Math.round(simProgress));
             }
         }, 200);
+        var preloaderStart = Date.now();
         window.addEventListener("model-ready", function() {
             clearInterval(simTimer);
             updateProgress(100);
-            hidePreloader();
+            var elapsed = Date.now() - preloaderStart;
+            var remaining = Math.max(0, 2000 - elapsed);
+            setTimeout(hidePreloader, remaining);
         });
         window.addEventListener("model-progress", function(e) {
             var real = e.detail;

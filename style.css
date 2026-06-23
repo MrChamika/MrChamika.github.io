@@ -146,7 +146,7 @@ body {
     color: #ff6a00;
     -webkit-text-stroke: 0px;
     clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
-    animation: waterFill 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+    animation: waterFill 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
 }
 
 @keyframes waterFill {
