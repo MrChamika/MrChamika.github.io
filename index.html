@@ -23,6 +23,16 @@
     <!-- Stylesheet -->
     <link rel="icon" type="image/png" href="letter-e.png">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .no-preloader #page-preloader {
+            display: none !important;
+        }
+    </style>
+    <script>
+        if (sessionStorage.getItem('preloaderShown') === 'true') {
+            document.documentElement.classList.add('no-preloader');
+        }
+    </script>
 </head>
 
 <body class="theme-orange">
@@ -148,6 +158,7 @@
         function hidePreloader() {
             var el = document.getElementById("page-preloader");
             if (el) el.classList.add("hidden");
+            sessionStorage.setItem('preloaderShown', 'true');
         }
         function updateProgress(pct) {
             var bar = document.getElementById("preloader-bar");
@@ -194,6 +205,8 @@
                 document.querySelector('.nav-links').classList.remove('open');
                 var icon = document.querySelector('#menu-toggle i');
                 if (icon) icon.className = 'fa-solid fa-bars';
+            });
+        });
     </script>
 </body>
 

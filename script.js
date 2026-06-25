@@ -1,4 +1,4 @@
-﻿import { db, seedInitialProducts } from './firebase-setup.js';
+import { db, seedInitialProducts } from './firebase-setup.js';
 import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // --- Size Buttons ---
@@ -209,7 +209,18 @@ function initNavObserver() {
         threshold: 0
     };
 
+    const updateActiveState = () => {
+        if (window.scrollY < 80) {
+            navItems.forEach(item => item.classList.remove('active'));
+            navItems[0].classList.add('active');
+            return true;
+        }
+        return false;
+    };
+
     const observer = new IntersectionObserver((entries) => {
+        if (updateActiveState()) return;
+
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 navItems.forEach(item => item.classList.remove('active'));
@@ -225,6 +236,12 @@ function initNavObserver() {
 
     observer.observe(sections.hero);
     observer.observe(sections.products);
+
+    // Initial check on load
+    updateActiveState();
+
+    // Listen to scroll events to reset to HOME if scrolled to the top
+    window.addEventListener('scroll', updateActiveState);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
