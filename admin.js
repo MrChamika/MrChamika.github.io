@@ -1,4 +1,4 @@
-﻿import { db, auth, seedInitialProducts } from './firebase-setup.js';
+import { db, auth, seedInitialProducts } from './firebase-setup.js';
 import { collection, getDocs, doc, setDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 

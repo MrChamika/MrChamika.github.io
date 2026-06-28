@@ -742,7 +742,6 @@ body {
 .list-section {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 10rem);
 }
 
 .list-header {
@@ -779,7 +778,7 @@ body {
 
 /* --- Catalog Table --- */
 .catalog-list-container {
-    flex: 1;
+    height: 350px;
     overflow-y: auto;
     border-radius: 14px;
     border: 1px solid var(--border-subtle);
