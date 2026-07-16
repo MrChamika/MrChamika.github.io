@@ -1,5 +1,6 @@
 import { db, seedInitialProducts } from './firebase-setup.js';
-import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import './auth-header-helper.js';
 
 // --- Size Buttons ---
 const sizeBtns = document.querySelectorAll('.size-btn');
@@ -16,27 +17,53 @@ async function renderProducts() {
     const gridContainer = document.getElementById('products-grid');
     if (!gridContainer) return;
 
-    await seedInitialProducts();
-
-    const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
-    const products = [];
-    snapshot.forEach(doc => {
-        products.push({ id: doc.id, ...doc.data() });
-    });
-
-    gridContainer.innerHTML = '';
-
-    if (products.length === 0) {
-        gridContainer.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
-                <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1.2rem; display: block;"></i>
-                <p>No products found in the catalog. Visit the management portal to add items.</p>
-            </div>
-        `;
-        return;
+    // Seed only if we can - failure here should not block product loading
+    try {
+        await seedInitialProducts();
+    } catch (seedErr) {
+        console.warn('Seed skipped (likely Firestore rules):', seedErr.message || seedErr);
     }
 
+    // Load reviews and aggregate ratings
+    window.ratingsMap = {};
+    try {
+        const reviewsSnap = await getDocs(collection(db, 'reviews'));
+        let productRatings = {};
+        reviewsSnap.forEach(d => {
+            const data = d.data();
+            const pid = data.productId;
+            if (!productRatings[pid]) productRatings[pid] = { sum: 0, count: 0 };
+            productRatings[pid].sum += (data.rating || 0);
+            productRatings[pid].count++;
+        });
+        for (let pid in productRatings) {
+            window.ratingsMap[pid] = (productRatings[pid].sum / productRatings[pid].count).toFixed(1);
+        }
+    } catch (e) {
+        console.error('Error loading reviews for ratings:', e);
+    }
+
+    try {
+        const productsRef = collection(db, 'products');
+        const snapshot = await getDocs(productsRef);
+        const products = [];
+        snapshot.forEach(doc => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
+
+        gridContainer.innerHTML = '';
+
+        if (products.length === 0) {
+            gridContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
+                    <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1.2rem; display: block;"></i>
+                    <p>No products found in the catalog. Visit the management portal to add items.</p>
+                </div>
+            `;
+            return;
+        }
+
+        allProducts = products;
     products.forEach(prod => {
         const card = document.createElement('div');
         card.className = `product-card theme-${prod.theme || 'orange'}`;
@@ -126,7 +153,18 @@ async function renderProducts() {
         });
 
         gridContainer.appendChild(card);
-    });
+        });
+    } catch (e) {
+        console.error('Error loading products:', e);
+        gridContainer.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #ff4757;">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; margin-bottom: 1.2rem; display: block;"></i>
+                <p style="font-weight:700;">Failed to load products.</p>
+                <p style="font-size:0.85rem; color:#aaa; margin-top:8px;">Firestore error: ${e.code || e.message}</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:6px;">Check your Firebase Firestore Security Rules — public read access on the <em>products</em> collection may be denied.</p>
+            </div>
+        `;
+    }
 }
 
 window.addToCart = function(id, title, price, image, size, color) {
@@ -259,5 +297,176 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavObserver();
     loadSocialLinks();
 });
+
+
+
+
+
+// ============ Search, Filter & Sort ============
+
+let allProducts = [];
+let activeFilter = 'all';
+let searchQuery = '';
+let sortBy = 'default';
+
+function setupToolbar() {
+    const searchInput = document.getElementById('search-input');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const sortSelect = document.getElementById('sort-select');
+
+    if (!searchInput && !filterChips.length && !sortSelect) return;
+
+    // Debounced search
+    let debounceTimer;
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchQuery = searchInput.value.toLowerCase().trim();
+                renderFilteredProducts();
+            }, 300);
+        });
+    }
+
+    // Filter chips
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            filterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activeFilter = chip.dataset.filter;
+            renderFilteredProducts();
+        });
+    });
+
+    // Sort
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            sortBy = sortSelect.value;
+            renderFilteredProducts();
+        });
+    }
+}
+
+function renderFilteredProducts() {
+    const gridContainer = document.getElementById('products-grid');
+    if (!gridContainer) return;
+
+    let filtered = [...allProducts];
+
+    // Filter by badge
+    if (activeFilter !== 'all') {
+        filtered = filtered.filter(p => p.badge === activeFilter);
+    }
+
+    // Search by title or description
+    if (searchQuery) {
+        filtered = filtered.filter(p =>
+            p.title.toLowerCase().includes(searchQuery) ||
+            (p.description && p.description.toLowerCase().includes(searchQuery))
+        );
+    }
+
+    // Sort
+    if (sortBy === 'price-asc') {
+        filtered.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+        filtered.sort((a, b) => b.price - a.price);
+    }
+
+    // Clear grid and re-render
+    gridContainer.innerHTML = '';
+    if (filtered.length === 0) {
+        gridContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);"><i class="fa-regular fa-face-frown" style="font-size: 3rem; margin-bottom: 1.2rem; display: block;"></i><p>No products match your search or filters.</p></div>';
+        return;
+    }
+
+    // Re-render filtered products
+    const localRatings = window.ratingsMap || {};
+    filtered.forEach(prod => {
+        const starsHtml = localRatings[prod.id]
+            ? '<span class="stars-display">' + renderStars(Number(localRatings[prod.id])) + '</span> <span class="stars-count">(' + localRatings[prod.id] + ')</span>'
+            : '';
+
+        const sizes = prod.sizes || ['S','M','L','XL'];
+        const colors = prod.colors || [{name:'Standard',hex:'#888'}];
+        const badgeHTML = prod.badge ? '<span class="product-card-badge">' + prod.badge + '</span>' : '';
+        const coverImage = (prod.images && prod.images.length > 0) ? prod.images[0] : prod.image;
+        const safeCoverImage = coverImage || 'https://images.unsplash.com/photo-1544923246-77307dd654cb?w=600';
+        const escapedTitle = prod.title.replace(/"/g, '&quot;');
+        const escapedImage = (coverImage || '').replace(/"/g, '&quot;');
+
+        const sizeBtnsHTML = sizes.map(s => '<button type="button" class="size-btn" data-size="' + s + '">' + s + '</button>').join('');
+        const colorSwatchesHTML = colors.map((c, i) => '<button type="button" class="color-swatch-btn ' + (i === 0 ? 'selected' : '') + '" data-color="' + c.name + '" data-hex="' + c.hex + '" style="background:' + c.hex + ';" title="' + c.name + '"></button>').join('');
+
+        const card = document.createElement('div');
+        card.className = 'product-card theme-' + (prod.theme || 'orange');
+        card.style.cursor = 'pointer';
+        card.onclick = (e) => {
+            if (!e.target.closest('.product-card-action') && !e.target.closest('.size-btn') && !e.target.closest('.color-swatch-btn')) {
+                window.location.href = 'product.html?id=' + prod.id;
+            }
+        };
+
+        card.innerHTML = badgeHTML +
+            '<div class="product-card-img-container"><img src="' + safeCoverImage + '" alt="' + escapedTitle + '" class="product-card-img" loading="lazy" onerror="this.src=\'https://images.unsplash.com/photo-1544923246-77307dd654cb?w=600\'"></div>' +
+            '<div class="product-card-info">' +
+                '<h3 class="product-card-title">' + prod.title + '</h3>' +
+                '<p class="product-card-desc">' + prod.description + '</p>' +
+                (starsHtml ? '<div class="product-card-stars">' + starsHtml + '</div>' : '') +
+                '<div class="product-card-variants">' +
+                    '<div class="variant-row"><span class="variant-label">Size</span><div class="variant-options size-options" data-product-id="' + prod.id + '">' + sizeBtnsHTML + '</div></div>' +
+                    '<div class="variant-row"><span class="variant-label">Color</span><div class="variant-options color-options">' + colorSwatchesHTML + '</div></div>' +
+                '</div>' +
+                '<div class="product-card-meta">' +
+                    '<span class="product-card-price">Rs. ' + prod.price + '</span>' +
+                    '<span class="product-card-tag">' + (prod.theme || '') + ' edition</span>' +
+                '</div>' +
+            '</div>' +
+            '<button class="product-card-action" data-id="' + prod.id + '" data-title="' + escapedTitle + '" data-price="' + prod.price + '" data-image="' + escapedImage + '">Add to Cart <i class="fa-solid fa-bag-shopping"></i></button>';
+
+        const sizeBtns = card.querySelectorAll('.size-btn');
+        if (sizeBtns.length > 0) sizeBtns[0].classList.add('active');
+        sizeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sizeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        card.querySelectorAll('.color-swatch-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                btn.closest('.color-options').querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+        });
+
+        card.querySelector('.product-card-action').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const cardEl = btn.closest('.product-card');
+            const selSize = cardEl.querySelector('.size-btn.active');
+            const selColor = cardEl.querySelector('.color-swatch-btn.selected');
+            if (!selSize) { showCartToast('Please select a size.', true); return; }
+            if (!selColor) { showCartToast('Please select a color.', true); return; }
+            addToCart(btn.dataset.id, btn.dataset.title, Number(btn.dataset.price), btn.dataset.image, selSize.dataset.size, selColor.dataset.color);
+        });
+
+        gridContainer.appendChild(card);
+    });
+}
+
+function renderStars(count) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        html += i <= count ? '★' : '☆';
+    }
+    return html;
+}
+
+
+
+
 
 

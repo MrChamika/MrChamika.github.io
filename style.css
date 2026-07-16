@@ -12,6 +12,8 @@ a, button, input, textarea, select, .clickable, [role="button"], label, summary,
     /* Montserrat & Playfair fonts */
     --font-sans: 'Montserrat', sans-serif;
     --font-serif: 'Playfair Display', serif;
+    /* Logo font */
+    --font-logo: 'Inertia', sans-serif;
 }
 
 /* Theme specific overrides */
@@ -93,7 +95,7 @@ body {
 
 .water-text {
     position: relative;
-    font-family: var(--font-sans);
+    font-family: var(--font-logo);
     font-weight: 900;
     font-size: clamp(2.5rem, 6vw, 6rem);
     color: transparent;
@@ -207,6 +209,7 @@ body {
 }
 
 .logo {
+    font-family: var(--font-logo);
     font-size: 1.4rem;
     font-weight: 300;
     letter-spacing: 4px;
@@ -648,7 +651,7 @@ body {
 }
 
 .footer-brand {
-    font-family: var(--font-serif);
+    font-family: var(--font-logo);
     font-size: 1rem;
     letter-spacing: 4px;
     font-weight: 300;
@@ -1177,6 +1180,7 @@ body {
         border-radius: 50px;
     }
     .logo {
+    font-family: var(--font-logo);
         font-size: 1.1rem;
         z-index: 100;
     }
@@ -1374,6 +1378,7 @@ body {
         padding: 0.8rem 4%;
     }
     .logo {
+    font-family: var(--font-logo);
         font-size: 0.9rem;
         letter-spacing: 2px;
     }
@@ -1435,6 +1440,10 @@ body {
     .checkout-container { padding: 80px 4% 1.5rem !important; }
     .checkout-title { font-size: 1.5rem !important; }
 }
+
+
+
+
 
 
 

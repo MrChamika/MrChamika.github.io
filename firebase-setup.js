@@ -67,3 +67,18 @@ export async function seedInitialProducts() {
         console.log('Database seeded with default products.');
     }
 }
+
+// Fetch PayHere merchant config from Firestore settings
+export async function getPayHereConfig() {
+    try {
+        const docSnap = await getDoc(doc(db, 'settings', 'payhere'));
+        if (docSnap.exists()) {
+            return docSnap.data();
+        }
+        console.warn('PayHere settings not found in Firestore (settings > payhere).');
+        return null;
+    } catch (e) {
+        console.error('Error fetching PayHere config:', e);
+        return null;
+    }
+}

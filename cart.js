@@ -1,4 +1,6 @@
-﻿document.addEventListener('DOMContentLoaded', renderCart);
+import './auth-header-helper.js';
+
+document.addEventListener('DOMContentLoaded', renderCart);
 
 function getCart() {
     return JSON.parse(localStorage.getItem('cart')) || [];

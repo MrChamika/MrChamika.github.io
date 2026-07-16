@@ -1,5 +1,7 @@
-﻿import { db } from './firebase-setup.js';
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db, auth } from './firebase-setup.js';
+import { doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import './auth-header-helper.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     updateCartCount();
@@ -127,6 +129,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Error fetching product:", e);
         container.innerHTML = '<div class="loading">Error loading product.</div>';
     }
+
+    loadReviews(productId);
+    setupReviewForm(productId);
 });
 
 function addToCart(id, title, price, image, size, color) {
@@ -175,4 +180,144 @@ function updateCartCount() {
         countEl.style.display = total > 0 ? 'flex' : 'none';
     }
 }
+
+
+
+// ============ Reviews ============
+
+let currentProductId = null;
+
+async function loadReviews(productId) {
+    const section = document.getElementById('reviews-section');
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+
+    try {
+        const q = query(collection(db, 'reviews'), where('productId', '==', productId), orderBy('date', 'desc'));
+        const snapshot = await getDocs(q);
+        const reviews = [];
+        snapshot.forEach(d => reviews.push({ id: d.id, ...d.data() }));
+
+        if (reviews.length === 0) {
+            section.style.display = 'block';
+            container.innerHTML = '<div class="no-reviews"><i class="fa-regular fa-star-half-stroke" style="font-size:2rem;margin-bottom:12px;display:block;"></i><p>No reviews yet. Be the first to review!</p></div>';
+            return;
+        }
+
+        const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+        const avgRating = (totalRating / reviews.length).toFixed(1);
+        const fullStars = Math.floor(avgRating);
+        const starsHTML = renderStars(fullStars);
+
+        const reviewsListHTML = reviews.map(r => {
+            const reviewStars = renderStars(r.rating || 0);
+            const initials = (r.userName || 'A').charAt(0).toUpperCase();
+            const date = r.date ? new Date(r.date.seconds * 1000).toLocaleDateString('en-LK', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+            return `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">${initials}</div>
+                        <span class="review-author">${r.userName || 'Anonymous'}</span>
+                        <span class="review-date">${date}</span>
+                    </div>
+                    <div class="review-stars">${reviewStars}</div>
+                    <div class="review-comment">${r.comment || ''}</div>
+                </div>
+            `;
+        }).join('');
+
+        section.style.display = 'block';
+        container.innerHTML = `
+            <div class="reviews-summary">
+                <div class="reviews-avg-rating">${avgRating}</div>
+                <div>
+                    <div class="reviews-avg-stars">${starsHTML}</div>
+                    <div class="reviews-avg-count">Based on ${reviews.length} review${reviews.length !== 1 ? 's' : ''}</div>
+                </div>
+            </div>
+            ${reviewsListHTML}
+        `;
+    } catch (e) {
+        console.error('Error loading reviews:', e);
+    }
+}
+
+async function setupReviewForm(productId) {
+    const section = document.getElementById('reviews-section');
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+
+    onAuthStateChanged(auth, (user) => {
+        const existingForm = document.getElementById('review-form-wrapper');
+        if (existingForm) existingForm.remove();
+
+        if (!user) {
+            const loginCTA = document.createElement('div');
+            loginCTA.id = 'review-form-wrapper';
+            loginCTA.className = 'review-login-cta';
+            loginCTA.innerHTML = '<a href="login.html?redirect=' + encodeURIComponent(window.location.href) + '">Sign in</a> to leave a review.';
+            container.prepend(loginCTA);
+            return;
+        }
+
+        const form = document.createElement('div');
+        form.id = 'review-form-wrapper';
+        form.className = 'review-form';
+        form.innerHTML = `
+            <h3><i class="fa-regular fa-pen-to-square"></i> Write a Review</h3>
+            <div class="star-rating-input">
+                <input type="radio" name="rating" id="star5" value="5"><label for="star5">★</label>
+                <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
+                <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
+                <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
+                <input type="radio" name="rating" id="star1" value="1"><label for="star1">★</label>
+            </div>
+            <textarea id="review-comment" placeholder="Share your thoughts about this product..."></textarea>
+            <button class="submit-btn" id="submit-review-btn">Submit Review</button>
+        `;
+        container.prepend(form);
+
+        document.getElementById('submit-review-btn').addEventListener('click', async () => {
+            const selected = document.querySelector('input[name="rating"]:checked');
+            const comment = document.getElementById('review-comment').value.trim();
+            if (!selected) { alert('Please select a star rating.'); return; }
+            if (!comment) { alert('Please write a comment.'); return; }
+
+            const btn = document.getElementById('submit-review-btn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                await addDoc(collection(db, 'reviews'), {
+                    productId: productId,
+                    userId: user.uid,
+                    userName: user.displayName || user.email.split('@')[0],
+                    rating: Number(selected.value),
+                    comment: comment,
+                    date: serverTimestamp()
+                });
+                document.getElementById('review-comment').value = '';
+                document.querySelector('input[name="rating"]:checked').checked = false;
+                btn.textContent = 'Submitted!';
+                setTimeout(() => { btn.textContent = 'Submit Review'; btn.disabled = false; }, 2000);
+                loadReviews(productId);
+            } catch (e) {
+                console.error('Error submitting review:', e);
+                alert('Failed to submit review. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Submit Review';
+            }
+        });
+    });
+}
+
+function renderStars(count) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        html += i <= count ? '★' : '☆';
+    }
+    return html;
+}
+
+
 
