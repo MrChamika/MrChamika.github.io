@@ -15,6 +15,7 @@ a, button, input, textarea, select, [role="button"], [onclick] { cursor: url('ht
 
 :root {
     --font-sans: 'Montserrat', sans-serif;
+    --font-logo: 'Inertia', sans-serif;
     --font-serif: 'Playfair Display', serif;
 
     --bg-dark:       #070504;
@@ -90,6 +91,7 @@ body {
 }
 
 .logo {
+    font-family: var(--font-logo);
     font-size: 1.2rem;
     font-weight: 300;
     letter-spacing: 3px;

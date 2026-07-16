@@ -3,7 +3,7 @@ import { collection, getDocs, doc, setDoc, deleteDoc, addDoc } from "https://www
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // =============================================
-//  JACKET MASTERS â€” ADMIN CONTROL PORTAL JS
+//  ITALION � ADMIN CONTROL PORTAL JS
 // =============================================
 
 // â”€â”€ Auth Handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -61,6 +61,35 @@ function showToast(message, type = 'success') {
 
     setTimeout(() => toast.remove(), 2900);
 }
+
+async function clearOrders() {
+    if (!confirm("Are you sure you want to DELETE ALL past orders? This cannot be undone.")) return;
+
+    const btn = document.getElementById("clear-orders-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "Deleting..."; }
+
+    const container = document.getElementById("orders-list");
+    if (container) container.innerHTML = '<div style="padding:20px;color:#aaa;">Deleting orders...</div>';
+
+    try {
+        const snapshot = await getDocs(collection(db, "orders"));
+        let count = 0;
+        for (const d of snapshot.docs) {
+            await deleteDoc(doc(db, "orders", d.id));
+            count++;
+        }
+        showToast(`Deleted ${count} order(s).`, "success");
+        renderOrders();
+    } catch (e) {
+        console.error(e);
+        alert("Failed to clear orders: " + e.message + "\n\nCheck the browser console for details.");
+    }
+
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Clear All Orders'; }
+};
+
+window.clearOrders = clearOrders;
+
 
 // â”€â”€ Admin Data Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -594,7 +623,7 @@ async function loadSocialLinks() {
             const data = doc.data();
             if(document.getElementById('social-instagram')) document.getElementById('social-instagram').value = data.instagram || '';
             if(document.getElementById('social-facebook')) document.getElementById('social-facebook').value = data.facebook || '';
-            if(document.getElementById('social-twitter')) document.getElementById('social-twitter').value = data.twitter || '';
+            if(document.getElementById('social-tiktok')) document.getElementById('social-tiktok').value = data.tiktok || '';
         }
     });
 }
@@ -602,10 +631,10 @@ async function loadSocialLinks() {
 window.saveSocialLinks = async () => {
     const instagram = document.getElementById('social-instagram').value.trim();
     const facebook = document.getElementById('social-facebook').value.trim();
-    const twitter = document.getElementById('social-twitter').value.trim();
+    const tiktok = document.getElementById('social-tiktok').value.trim();
     
     try {
-        await setDoc(doc(db, 'settings', 'social'), { instagram, facebook, twitter });
+        await setDoc(doc(db, 'settings', 'social'), { instagram, facebook, tiktok });
         showToast('Social links saved!', 'success');
     } catch(e) {
         console.error(e);
@@ -624,5 +653,3 @@ document.addEventListener('DOMContentLoaded', () => {
     initForm();
     initColorAdder();
 });
-
-

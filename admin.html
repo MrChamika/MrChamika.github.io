@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ddwadwad MASTERS - Store Control Panel</title>
+    <title>Italion - Store Control Panel</title>
     <!-- Preconnect for third-party origins -->
     <link rel="preconnect" href="https://www.gstatic.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -30,7 +30,7 @@
 
     <header class="admin-header">
         <div class="logo">
-            <span class="logo-bold">JACKET</span><span>MASTERS</span>
+            <span class="logo-bold">ITALION</span>
         </div>
         <div class="header-center">
             <span class="control-badge">CONTROL PANEL</span>
@@ -262,8 +262,8 @@
                             style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-brands fa-x-twitter" style="width: 20px;"></i>
-                        <input type="text" id="social-twitter" placeholder="Twitter URL"
+                        <i class="fa-brands fa-tiktok" style="width: 20px;"></i>
+                        <input type="text" id="social-tiktok" placeholder="TikTok URL"
                             style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
                     </div>
                 </div>
@@ -271,8 +271,15 @@
 
             <!-- New Orders Section -->
             <div style="margin-top: 40px;">
-                <h2 class="card-title"><i class="fa-solid fa-box-open"></i> Customer Orders</h2>
-                <p class="card-subtitle">Recent orders placed on the storefront.</p>
+                <div class="list-header">
+                    <div>
+                        <h2 class="card-title"><i class="fa-solid fa-box-open"></i> Customer Orders</h2>
+                        <p class="card-subtitle">Recent orders placed on the storefront.</p>
+                    </div>
+                    <button type="button" class="reset-btn" id="clear-orders-btn">
+                        <i class="fa-solid fa-trash-can"></i> Clear All Orders
+                    </button>
+                </div>
                 <div id="orders-list" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
             </div>
         </section>
@@ -280,8 +287,19 @@
     </main>
 
     <!-- Main Controller Scripts -->
+    <script>
+        (function () {
+            var btn = document.getElementById("clear-orders-btn");
+            if (btn) {
+                btn.addEventListener("click", function () {
+                    if (window.clearOrders) {
+                        window.clearOrders();
+                    }
+                });
+            }
+        })();
+    </script>
     <script type="module" src="admin.js"></script>
 </body>
 
 </html>
-
