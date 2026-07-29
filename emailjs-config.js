@@ -79,7 +79,6 @@ export async function sendOrderConfirmation(orderData) {
         return false;
     }
 }
-
 const EMAILJS_ADMIN_CONFIG = {
     serviceId:  'service_axf5ok8',
     templateId: 'template_0aq6whq',
@@ -92,31 +91,40 @@ export async function sendAdminOrderNotification(orderData) {
         return false;
     }
 
-    const items = (orderData.cart || []).map(item => ({
-        image_url: item.image || '',
-        name: item.title,
-        size: item.size || '',
-        color: item.color || '',
-        units: item.quantity,
-        price: (item.price * item.quantity).toLocaleString()
-    }));
+    var items = (orderData.cart || []).map(function(item) {
+        return {
+            image_url: item.image || '',
+            name: item.title,
+            size: item.size || '',
+            color: item.color || '',
+            units: item.quantity,
+            price: String(item.price * item.quantity)
+        };
+    });
 
-    const subtotal = (orderData.cart || []).reduce((s, i) => s + i.price * i.quantity, 0);
+    var subtotal = 0;
+    (orderData.cart || []).forEach(function(i) { subtotal += i.price * i.quantity; });
 
-    const params = {
+    var name = (orderData.fname || '') + ' ' + (orderData.lname || '');
+    name = name.trim() || 'N/A';
+
+    var addr = (orderData.address || '') + ', ' + (orderData.city || '') + ' ' + (orderData.zip || '');
+    addr = addr.trim();
+
+    var params = {
         admin_email: 'italiontailors@gmail.com',
         order_id:       orderData.orderId || 'N/A',
-        customer_name:  ${orderData.fname || ''} .trim() || 'N/A',
+        customer_name:  name,
         customer_email: orderData.email || '',
         customer_phone: orderData.phone || '',
-        address:        ${orderData.address || ''},  .trim(),
+        address:        addr,
         payment_method: orderData.paymentMethod || 'N/A',
-        order_date:     new Date(orderData.date || Date.now()).toLocaleString(),
+        order_date:     orderData.date ? new Date(orderData.date).toLocaleString() : new Date().toLocaleString(),
         orders: items,
         cost: {
             shipping: '500',
-            subtotal: subtotal.toLocaleString(),
-            total: (orderData.total || subtotal + 500).toLocaleString()
+            subtotal: String(subtotal),
+            total: String(orderData.total || subtotal + 500)
         }
     };
 
