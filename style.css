@@ -695,6 +695,19 @@ body {
     color: var(--accent-color);
 }
 
+.footer-nav + .admin-portal-link {
+    display: inline-block;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.2);
+    text-decoration: none;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+.footer-nav + .admin-portal-link:hover {
+    color: rgba(255,255,255,0.5);
+}
 .footer-copy {
     font-size: 0.7rem;
     color: var(--text-muted);
