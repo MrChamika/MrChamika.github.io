@@ -3,6 +3,8 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
     updateProfile
@@ -91,7 +93,10 @@ window.doGoogleSignIn = async function () {
         await saveUserToFirestore(result.user);
         showSuccess('Signed in with Google! Redirecting...');
     } catch (err) {
-        if (err.code !== 'auth/popup-closed-by-user') {
+        if (err.code === 'auth/popup-blocked') {
+            showError('Popup blocked. Redirecting to Google sign-in...');
+            await signInWithRedirect(auth, provider);
+        } else if (err.code !== 'auth/popup-closed-by-user') {
             showError(friendlyError(err.code));
         }
     }
@@ -108,6 +113,8 @@ function friendlyError(code) {
         'auth/invalid-email':      'Please enter a valid email address.',
         'auth/too-many-requests':  'Too many attempts. Please try again later.',
         'auth/network-request-failed': 'Network error. Check your connection.',
+        'auth/operation-not-allowed': 'Google sign-in is not enabled. Please enable it in Firebase Console (Authentication > Sign-in providers).',
+        'auth/popup-blocked': 'Popup was blocked. Please allow popups for this site and try again.',
     };
     return map[code] || 'Something went wrong. Please try again.';
 }
