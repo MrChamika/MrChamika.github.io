@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Cash on Delivery flow
                 await updateDoc(doc(db, 'orders', orderId), { status: 'pending' });
 
-                sendOrderConfirmation(formData);
+                try { await sendOrderConfirmation(formData); } catch(e) { console.error('Order confirmation failed:', e); }
                 try { await sendAdminOrderNotification(formData); } catch(e) { console.error('Admin notification failed:', e); }
 
                 localStorage.removeItem('cart');
@@ -179,7 +179,7 @@ payhere.onCompleted = async function onPayHereCompleted(payment) {
 
         const orderSnap = await getDoc(doc(db, 'orders', orderId));
         if (orderSnap.exists()) {
-            sendOrderConfirmation({ orderId: orderId, ...orderSnap.data() });
+            try { await sendOrderConfirmation({ orderId: orderId, ...orderSnap.data() }); } catch(e) { console.error('Order confirmation failed:', e); }
             try { await sendAdminOrderNotification({ orderId: orderId, ...orderSnap.data() }); } catch(e) { console.error('Admin notification failed:', e); }
         }
 
