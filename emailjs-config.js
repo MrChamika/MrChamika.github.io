@@ -14,9 +14,9 @@
 // ============================================================
 
 const EMAILJS_CONFIG = {
-    serviceId:  'YOUR_SERVICE_ID',   // e.g. 'service_abc123'
-    templateId: 'YOUR_TEMPLATE_ID',  // e.g. 'template_xyz456'
-    publicKey:  'YOUR_PUBLIC_KEY'    // e.g. 'AbCdEf_123456789'
+    serviceId:  'service_axf5ok8',
+    templateId: 'YOUR_CUSTOMER_TEMPLATE_ID',  // Replace with your customer confirmation template ID
+    publicKey:  'jhxzJXLT4GMJ-FaEy'
 };
 
 const EMAILJS_CONTACT_CONFIG = {
@@ -93,7 +93,6 @@ export async function sendAdminOrderNotification(orderData) {
 
     var items = (orderData.cart || []).map(function(item) {
         return {
-            image_url: item.image || '',
             name: item.title,
             size: item.size || '',
             color: item.color || '',
