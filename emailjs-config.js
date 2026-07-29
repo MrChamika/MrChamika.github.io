@@ -92,16 +92,18 @@ export async function sendAdminOrderNotification(orderData) {
     }
 
     var items_flat = (orderData.cart || []).map(function(item) {
-        return item.title + ' | Size: ' + (item.size || 'N/A') + ' | Color: ' + (item.color || 'N/A') + ' | Qty: ' + item.quantity + ' - Rs. ' + (item.price * item.quantity);
-    }).join('\n');
+        var qty = Number(item.quantity) || 0;
+        var price = Number(item.price) || 0;
+        var total = price * qty;
+        return (item.title || 'Item') + ' | Size: ' + (item.size || 'N/A') + ' | Color: ' + (item.color || 'N/A') + ' | Qty: ' + qty + ' - Rs. ' + total;
+    }).join('\n') || '(no items)';
 
     var subtotal = 0;
-    (orderData.cart || []).forEach(function(i) { subtotal += i.price * i.quantity; });
+    (orderData.cart || []).forEach(function(i) { var p = Number(i.price) || 0; var q = Number(i.quantity) || 0; subtotal += p * q; });
+    var addr = (orderData.address || '') + ', ' + (orderData.city || '') + ' ' + (orderData.zip || '');
 
     var name = (orderData.fname || '') + ' ' + (orderData.lname || '');
     name = name.trim() || 'N/A';
-
-    var addr = (orderData.address || '') + ', ' + (orderData.city || '') + ' ' + (orderData.zip || '');
     addr = addr.trim();
 
     var params = {

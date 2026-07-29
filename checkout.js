@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             fname: document.getElementById('fname').value,
             lname: document.getElementById('lname').value,
             email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
             address: document.getElementById('address').value,
             city: document.getElementById('city').value,
             zip: document.getElementById('zip').value,
