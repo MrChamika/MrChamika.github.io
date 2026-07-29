@@ -19,6 +19,25 @@ const EMAILJS_CONFIG = {
     publicKey:  'YOUR_PUBLIC_KEY'    // e.g. 'AbCdEf_123456789'
 };
 
+const EMAILJS_CONTACT_CONFIG = {
+    serviceId:  'service_axf5ok8',
+    templateId: 'template_6hjvccv',
+    publicKey:  'jhxzJXLT4GMJ-FaEy'
+};
+
+export async function sendContactMessage({ name, email, phone, message }) {
+    if (!window.emailjs) {
+        throw new Error('EmailJS SDK not loaded');
+    }
+    emailjs.init(EMAILJS_CONTACT_CONFIG.publicKey);
+    await emailjs.send(
+        EMAILJS_CONTACT_CONFIG.serviceId,
+        EMAILJS_CONTACT_CONFIG.templateId,
+        { name, email, phone, message, time: new Date().toLocaleString() }
+    );
+}
+
+
 export async function sendOrderConfirmation(orderData) {
     if (EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID') {
         console.log('📧 EmailJS not configured — skipping email. See emailjs-config.js to set up.');

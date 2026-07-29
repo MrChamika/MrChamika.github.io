@@ -186,20 +186,25 @@
             </div>
 
             <div class="contact-form">
-                <form onsubmit="event.preventDefault(); alert('Message sent successfully!'); this.reset();">
+                <form id="contact-form">
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" required>
+                        <input type="text" id="contact-name" required>
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" required>
+                        <input type="email" id="contact-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="contact-phone">
                     </div>
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea rows="4" required></textarea>
+                        <textarea id="contact-message" rows="4" required></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Send Message</button>
+                    <button type="submit" class="submit-btn" id="contact-submit-btn">Send Message</button>
+                    <div id="contact-status" style="margin-top:12px; font-size:0.85rem; display:none;"></div>
                 </form>
             </div>
         </div>
@@ -244,6 +249,39 @@
             <div class="footer-copy">&copy; 2026 Italion. All rights reserved.</div>
         </div>
     </footer>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="module">
+    import { sendContactMessage } from './emailjs-config.js';
+
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('contact-submit-btn');
+        const status = document.getElementById('contact-status');
+        const name = document.getElementById('contact-name').value;
+        const email = document.getElementById('contact-email').value;
+        const message = document.getElementById('contact-message').value;
+        const phone = document.getElementById('contact-phone').value;
+
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        status.style.display = 'none';
+
+        try {
+            await sendContactMessage({ name, email, phone, message });
+            status.style.display = 'block';
+            status.style.color = '#4cd137';
+            status.textContent = "Message sent! We'll get back to you soon.";
+            document.getElementById('contact-form').reset();
+        } catch (err) {
+            status.style.display = 'block';
+            status.style.color = '#ff4757';
+            status.textContent = 'Failed to send. Please try again.';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Send Message';
+        }
+    });
+</script>
 </body>
 
 </html>
