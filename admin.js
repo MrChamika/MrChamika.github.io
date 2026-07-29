@@ -3,7 +3,7 @@ import { collection, getDocs, doc, setDoc, deleteDoc, addDoc } from "https://www
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // =============================================
-//  ITALION � ADMIN CONTROL PORTAL JS
+//  ITALIAN TAILORS � ADMIN CONTROL PORTAL JS
 // =============================================
 
 // â”€â”€ Auth Handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
