@@ -209,15 +209,15 @@ async function loadSocialLinks() {
         const docSnap = await getDoc(doc(db, 'settings', 'social'));
         if (docSnap.exists()) {
             const data = docSnap.data();
-            const inst = document.getElementById('link-instagram');
-            const fb = document.getElementById('link-facebook');
-            const tw = document.getElementById('link-twitter');
-            const tk = document.getElementById('link-tiktok');
+            const inst = document.querySelectorAll('a[aria-label="Instagram"]');
+            const fb = document.querySelectorAll('a[aria-label="Facebook"]');
+            const tw = document.querySelectorAll('a[aria-label="Twitter"]');
+            const tk = document.querySelectorAll('a[aria-label="TikTok"]');
 
-            if (inst && data.instagram) inst.href = data.instagram;
-            if (fb && data.facebook) fb.href = data.facebook;
-            if (tw && data.twitter) tw.href = data.twitter;
-            if (tk && data.tiktok) tk.href = data.tiktok;
+            if (data.instagram) inst.forEach(el => el.href = data.instagram);
+            if (data.facebook) fb.forEach(el => el.href = data.facebook);
+            if (data.twitter) tw.forEach(el => el.href = data.twitter);
+            if (data.tiktok) tk.forEach(el => el.href = data.tiktok);
         }
     } catch (e) {
         console.error("Could not load social links", e);
