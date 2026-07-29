@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--  TO DO LIST
+clear button fix
+    payment adding
+    social button infooter homepage
+    con pan logo font-->
 
 <head>
     <meta charset="UTF-8">
@@ -17,13 +22,15 @@
         rel="stylesheet">
     <!-- Inertia Logo Font -->
     <link href="https://fonts.cdnfonts.com/css/inertia" rel="stylesheet">
+    <link rel="preload" href="https://fonts.cdnfonts.com/s/72116/Inertia-OVm04.woff" as="font" type="font/woff"
+        crossorigin>
     <!-- FontAwesome for Icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style"
         onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     </noscript>
     <!-- Stylesheet -->
-    <link rel="icon" type="image/png" href="letter-e.png">
+    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
     <style>
         .no-preloader #page-preloader {
@@ -64,14 +71,20 @@
         </div>
         <nav class="nav-links">
             <a href="#" class="nav-item active">HOME</a>
-            <a href="#products-section" class="nav-item">ALL PRODUCTS</a>
-            <a href="about.html" class="nav-item">ABOUT US</a>
+            <a href="#products-section" class="nav-item">SHOP</a>
+            <a href="about.html" class="nav-item">ABOUT</a>
             <a href="contact.html" class="nav-item">CONTACT</a>
+            <a href="privacy.html" class="nav-item">PRIVACY</a>
+            <a href="refund.html" class="nav-item">REFUNDS</a>
         </nav>
         <div class="header-actions">
             <button class="action-btn" aria-label="Favorites">
                 <i class="fa-regular fa-heart"></i>
             </button>
+            <a href="login.html" class="action-btn" id="header-user-btn" aria-label="Account"
+                style="text-decoration:none; color:inherit;">
+                <i class="fa-regular fa-user"></i>
+            </a>
             <a href="cart.html" class="action-btn cart-btn" aria-label="Cart"
                 style="text-decoration:none; color:inherit;">
                 <i class="fa-solid fa-bag-shopping"></i>
@@ -90,13 +103,12 @@
         <section class="left-panel">
             <div class="content-wrapper">
                 <h1 class="main-headline">
-                    <span class="headline-top">Premium</span>
-                    <span class="headline-bottom">Basketball Jacket</span>
+                    <span class="headline-top">Clothings</span>
+                    <span class="headline-bottom">Men's Wear</span>
                 </h1>
                 <p class="description-text">
-                    When it's not just about staying warm, it's about stepping outside and instantly feeling confident,
-                    comfortable, and completely yourself. Designed to elevate even the simplest outfit, this jacket
-                    wraps you in lightweight warmth.
+                    High-quality men's apparel tailored with precision to deliver confidence, comfort, and timeless
+                    style.
                 </p>
                 <div class="cta-wrapper">
                     <a href="#products-section" class="cta-button">
@@ -138,7 +150,9 @@
                 <a href="index.html">Home</a>
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
-                <a href="admin.html">Admin</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="refund.html">Refunds</a>
             </div>
             <div class="footer-social">
                 <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
