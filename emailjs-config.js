@@ -1,15 +1,15 @@
-// ============================================================
-// emailjs-config.js — Order Confirmation Email Helper
+﻿// ============================================================
+// emailjs-config.js â€” Order Confirmation Email Helper
 // ============================================================
 // SETUP INSTRUCTIONS:
-// 1. Go to https://www.emailjs.com → Create free account
-// 2. Add Email Service (Gmail/Outlook) → copy Service ID
+// 1. Go to https://www.emailjs.com â†’ Create free account
+// 2. Add Email Service (Gmail/Outlook) â†’ copy Service ID
 // 3. Create Email Template with these variables:
 //    {{order_id}}, {{customer_name}}, {{customer_email}},
 //    {{items_list}}, {{subtotal}}, {{shipping}}, {{total}},
 //    {{address}}, {{payment_method}}
 //    Copy the Template ID.
-// 4. Go to Account > API Keys → copy Public Key
+// 4. Go to Account > API Keys â†’ copy Public Key
 // 5. Replace the three values below
 // ============================================================
 
@@ -39,8 +39,8 @@ export async function sendContactMessage({ name, email, phone, message }) {
 
 
 export async function sendOrderConfirmation(orderData) {
-    if (EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID') {
-        console.log('📧 EmailJS not configured — skipping email. See emailjs-config.js to set up.');
+    if (EMAILJS_CONFIG.templateId === 'YOUR_CUSTOMER_TEMPLATE_ID') {
+        console.log('Customer confirmation email not configured - skipping.');
         return false;
     }
 
@@ -51,7 +51,7 @@ export async function sendOrderConfirmation(orderData) {
 
     const itemsList = (orderData.cart || [])
         .map(item =>
-            `• ${item.title} | Size: ${item.size} | Color: ${item.color} | Qty: ${item.quantity} — Rs. ${(item.price * item.quantity).toLocaleString()}`
+            `â€¢ ${item.title} | Size: ${item.size} | Color: ${item.color} | Qty: ${item.quantity} â€” Rs. ${(item.price * item.quantity).toLocaleString()}`
         )
         .join('\n');
 
@@ -72,10 +72,10 @@ export async function sendOrderConfirmation(orderData) {
     try {
         emailjs.init(EMAILJS_CONFIG.publicKey);
         await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
-        console.log('✅ Order confirmation email sent to', orderData.email);
+        console.log('âœ… Order confirmation email sent to', orderData.email);
         return true;
     } catch (err) {
-        console.error('❌ Failed to send email:', err);
+        console.error('âŒ Failed to send email:', err);
         return false;
     }
 }
