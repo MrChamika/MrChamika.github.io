@@ -211,12 +211,10 @@ async function loadSocialLinks() {
             const data = docSnap.data();
             const inst = document.querySelectorAll('a[aria-label="Instagram"]');
             const fb = document.querySelectorAll('a[aria-label="Facebook"]');
-            const tw = document.querySelectorAll('a[aria-label="Twitter"]');
             const tk = document.querySelectorAll('a[aria-label="TikTok"]');
 
             if (data.instagram) inst.forEach(el => el.href = data.instagram);
             if (data.facebook) fb.forEach(el => el.href = data.facebook);
-            if (data.twitter) tw.forEach(el => el.href = data.twitter);
             if (data.tiktok) tk.forEach(el => el.href = data.tiktok);
         }
     } catch (e) {
