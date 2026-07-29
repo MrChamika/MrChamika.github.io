@@ -1,15 +1,15 @@
-// ============================================================
-// emailjs-config.js â€” Order Confirmation Email Helper
+﻿// ============================================================
+// emailjs-config.js Ã¢â‚¬â€ Order Confirmation Email Helper
 // ============================================================
 // SETUP INSTRUCTIONS:
-// 1. Go to https://www.emailjs.com â†’ Create free account
-// 2. Add Email Service (Gmail/Outlook) â†’ copy Service ID
+// 1. Go to https://www.emailjs.com Ã¢â€ â€™ Create free account
+// 2. Add Email Service (Gmail/Outlook) Ã¢â€ â€™ copy Service ID
 // 3. Create Email Template with these variables:
 //    {{order_id}}, {{customer_name}}, {{customer_email}},
 //    {{items_list}}, {{subtotal}}, {{shipping}}, {{total}},
 //    {{address}}, {{payment_method}}
 //    Copy the Template ID.
-// 4. Go to Account > API Keys â†’ copy Public Key
+// 4. Go to Account > API Keys Ã¢â€ â€™ copy Public Key
 // 5. Replace the three values below
 // ============================================================
 
@@ -51,7 +51,7 @@ export async function sendOrderConfirmation(orderData) {
 
     const itemsList = (orderData.cart || [])
         .map(item =>
-            `â€¢ ${item.title} | Size: ${item.size} | Color: ${item.color} | Qty: ${item.quantity} â€” Rs. ${(item.price * item.quantity).toLocaleString()}`
+            `Ã¢â‚¬Â¢ ${item.title} | Size: ${item.size} | Color: ${item.color} | Qty: ${item.quantity} Ã¢â‚¬â€ Rs. ${(item.price * item.quantity).toLocaleString()}`
         )
         .join('\n');
 
@@ -72,10 +72,10 @@ export async function sendOrderConfirmation(orderData) {
     try {
         emailjs.init(EMAILJS_CONFIG.publicKey);
         await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
-        console.log('âœ… Order confirmation email sent to', orderData.email);
+        console.log('Ã¢Å“â€¦ Order confirmation email sent to', orderData.email);
         return true;
     } catch (err) {
-        console.error('âŒ Failed to send email:', err);
+        console.error('Ã¢ÂÅ’ Failed to send email:', err);
         return false;
     }
 }
@@ -91,15 +91,9 @@ export async function sendAdminOrderNotification(orderData) {
         return false;
     }
 
-    var items = (orderData.cart || []).map(function(item) {
-        return {
-            name: item.title,
-            size: item.size || '',
-            color: item.color || '',
-            units: item.quantity,
-            price: String(item.price * item.quantity)
-        };
-    });
+    var items_flat = (orderData.cart || []).map(function(item) {
+        return item.title + ' | Size: ' + (item.size || 'N/A') + ' | Color: ' + (item.color || 'N/A') + ' | Qty: ' + item.quantity + ' - Rs. ' + (item.price * item.quantity);
+    }).join('\n');
 
     var subtotal = 0;
     (orderData.cart || []).forEach(function(i) { subtotal += i.price * i.quantity; });
@@ -119,14 +113,10 @@ export async function sendAdminOrderNotification(orderData) {
         address:        addr,
         payment_method: orderData.paymentMethod || 'N/A',
         order_date:     orderData.date ? new Date(orderData.date).toLocaleString() : new Date().toLocaleString(),
-        orders: items,
-        cost: {
-            shipping: '500',
-            subtotal: String(subtotal),
-            total: String(orderData.total || subtotal + 500)
-        }
+        items_flat:     items_flat,
+        subtotal_flat:  'Rs. ' + Number(subtotal).toLocaleString(),
+        total_flat:     'Rs. ' + Number(orderData.total || subtotal + 500).toLocaleString()
     };
-
     try {
         emailjs.init(EMAILJS_ADMIN_CONFIG.publicKey);
         await emailjs.send(EMAILJS_ADMIN_CONFIG.serviceId, EMAILJS_ADMIN_CONFIG.templateId, params);
