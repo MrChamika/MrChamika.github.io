@@ -79,3 +79,54 @@ export async function sendOrderConfirmation(orderData) {
         return false;
     }
 }
+
+const EMAILJS_ADMIN_CONFIG = {
+    serviceId:  'service_axf5ok8',
+    templateId: 'template_0aq6whq',
+    publicKey:  'jhxzJXLT4GMJ-FaEy'
+};
+
+export async function sendAdminOrderNotification(orderData) {
+    if (!window.emailjs) {
+        console.warn('EmailJS SDK not loaded on this page.');
+        return false;
+    }
+
+    const items = (orderData.cart || []).map(item => ({
+        image_url: item.image || '',
+        name: item.title,
+        size: item.size || '',
+        color: item.color || '',
+        units: item.quantity,
+        price: (item.price * item.quantity).toLocaleString()
+    }));
+
+    const subtotal = (orderData.cart || []).reduce((s, i) => s + i.price * i.quantity, 0);
+
+    const params = {
+        admin_email: 'italiontailors@gmail.com',
+        order_id:       orderData.orderId || 'N/A',
+        customer_name:  ${orderData.fname || ''} .trim() || 'N/A',
+        customer_email: orderData.email || '',
+        customer_phone: orderData.phone || '',
+        address:        ${orderData.address || ''},  .trim(),
+        payment_method: orderData.paymentMethod || 'N/A',
+        order_date:     new Date(orderData.date || Date.now()).toLocaleString(),
+        orders: items,
+        cost: {
+            shipping: '500',
+            subtotal: subtotal.toLocaleString(),
+            total: (orderData.total || subtotal + 500).toLocaleString()
+        }
+    };
+
+    try {
+        emailjs.init(EMAILJS_ADMIN_CONFIG.publicKey);
+        await emailjs.send(EMAILJS_ADMIN_CONFIG.serviceId, EMAILJS_ADMIN_CONFIG.templateId, params);
+        console.log('Admin order notification sent.');
+        return true;
+    } catch (err) {
+        console.error('Failed to send admin notification:', err);
+        return false;
+    }
+}

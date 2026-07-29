@@ -1,7 +1,7 @@
 import { db, auth, getPayHereConfig } from './firebase-setup.js';
 import { collection, getDocs, addDoc, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { sendOrderConfirmation } from './emailjs-config.js';
+import { sendOrderConfirmation, sendAdminOrderNotification } from './emailjs-config.js';
 import './auth-header-helper.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await updateDoc(doc(db, 'orders', orderId), { status: 'pending' });
 
                 sendOrderConfirmation(formData);
+                sendAdminOrderNotification(formData);
 
                 localStorage.removeItem('cart');
                 document.getElementById('checkout-form-container').style.display = 'none';
@@ -173,6 +174,7 @@ payhere.onCompleted = async function onPayHereCompleted(payment) {
         const orderSnap = await getDoc(doc(db, 'orders', orderId));
         if (orderSnap.exists()) {
             sendOrderConfirmation({ orderId: orderId, ...orderSnap.data() });
+            sendAdminOrderNotification({ orderId: orderId, ...orderSnap.data() });
         }
 
         localStorage.removeItem('cart');
