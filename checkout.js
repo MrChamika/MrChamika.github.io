@@ -67,7 +67,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (e) {
         console.error("Error fetching payment methods", e);
-        pmContainer.innerHTML = '<div style="color:red;">Failed to load payment options.</div>';
+        pmContainer.innerHTML = `
+            <label class="payment-method">
+                <input type="radio" name="payment_method" value="Cash on Delivery" required>
+                <span>Cash on Delivery</span>
+            </label>
+        `;
+        placeBtn.disabled = false;
     }
 
     // Handle Submission
