@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // emailjs-config.js â€” Order Confirmation Email Helper
 // ============================================================
 // SETUP INSTRUCTIONS:
@@ -111,7 +111,7 @@ export async function sendAdminOrderNotification(orderData) {
     addr = addr.trim();
 
     var params = {
-        admin_email: 'italiontailors@gmail.com',
+        admin_email: 'Piyumalc11@gmail.com',
         order_id:       orderData.orderId || 'N/A',
         customer_name:  name,
         customer_email: orderData.email || '',
