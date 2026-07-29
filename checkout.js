@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await updateDoc(doc(db, 'orders', orderId), { status: 'pending' });
 
                 sendOrderConfirmation(formData);
-                sendAdminOrderNotification(formData);
+                try { await sendAdminOrderNotification(formData); } catch(e) { console.error('Admin notification failed:', e); }
 
                 localStorage.removeItem('cart');
                 document.getElementById('checkout-form-container').style.display = 'none';
@@ -180,7 +180,7 @@ payhere.onCompleted = async function onPayHereCompleted(payment) {
         const orderSnap = await getDoc(doc(db, 'orders', orderId));
         if (orderSnap.exists()) {
             sendOrderConfirmation({ orderId: orderId, ...orderSnap.data() });
-            sendAdminOrderNotification({ orderId: orderId, ...orderSnap.data() });
+            try { await sendAdminOrderNotification({ orderId: orderId, ...orderSnap.data() }); } catch(e) { console.error('Admin notification failed:', e); }
         }
 
         localStorage.removeItem('cart');
