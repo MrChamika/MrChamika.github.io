@@ -212,10 +212,12 @@ async function loadSocialLinks() {
             const inst = document.getElementById('link-instagram');
             const fb = document.getElementById('link-facebook');
             const tw = document.getElementById('link-twitter');
+            const tk = document.getElementById('link-tiktok');
 
             if (inst && data.instagram) inst.href = data.instagram;
             if (fb && data.facebook) fb.href = data.facebook;
             if (tw && data.twitter) tw.href = data.twitter;
+            if (tk && data.tiktok) tk.href = data.tiktok;
         }
     } catch (e) {
         console.error("Could not load social links", e);
