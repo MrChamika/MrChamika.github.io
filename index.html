@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <!--  TO DO LIST
 clear button fix
@@ -307,17 +307,20 @@ clear button fix
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader Script (waits for 3D model + page load before dismissing) -->
+    <!-- Preloader Script (waits for page load before dismissing) -->
     <script>
         var modelReady = false;
         var pageLoaded = false;
-        var preloaderStart = Date.now();
-        var minDisplayTime = 2000;
 
         function hidePreloader() {
-            var el = document.getElementById("page-preloader");
-            if (el) el.classList.add("hidden");
-            sessionStorage.setItem('preloaderShown', 'true');
+            updateProgress(100);
+            setTimeout(function () {
+                var el = document.getElementById("page-preloader");
+                if (el && !el.classList.contains("hidden")) {
+                    el.classList.add("hidden");
+                    sessionStorage.setItem('preloaderShown', 'true');
+                }
+            }, 400);
         }
 
         function updateProgress(pct) {
@@ -334,9 +337,8 @@ clear button fix
         }
 
         function tryHidePreloader() {
-            if (modelReady && pageLoaded) {
-                var remaining = Math.max(0, minDisplayTime - (Date.now() - preloaderStart));
-                setTimeout(hidePreloader, remaining);
+            if (pageLoaded) {
+                hidePreloader();
             }
         }
 
@@ -359,15 +361,11 @@ clear button fix
 
         updateProgress(0);
 
-        // Safety: dismiss preloader after 8s regardless
-        setTimeout(function () {
-            var el = document.getElementById("page-preloader");
-            if (el && !el.classList.contains("hidden")) {
-                hidePreloader();
-            }
-        }, 8000);
+        // Edge case: if the load event already fired, dismiss anyway
+        if (document.readyState === "complete") {
+            tryHidePreloader();
+        }
     </script>
-
     <!-- Main Script (Firebase + Store Logic) -->
     <script type="module" src="script.js"></script>
 
