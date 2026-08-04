@@ -307,39 +307,65 @@ clear button fix
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader Script (dismisses only when 3D model signals ready or on error) -->
+    <!-- Preloader Script (waits for 3D model + page load before dismissing) -->
     <script>
+        var modelReady = false;
+        var pageLoaded = false;
+        var preloaderStart = Date.now();
+        var minDisplayTime = 2000;
+
         function hidePreloader() {
             var el = document.getElementById("page-preloader");
             if (el) el.classList.add("hidden");
             sessionStorage.setItem('preloaderShown', 'true');
         }
+
         function updateProgress(pct) {
+            var percent = Math.min(pct, 100);
             var bar = document.getElementById("preloader-bar");
             var label = document.getElementById("preloader-percent");
-            if (bar) bar.style.width = Math.min(pct, 100) + "%";
-            if (label) label.textContent = Math.min(pct, 100) + "%";
+            if (bar) bar.style.width = percent + "%";
+            if (label) label.textContent = percent + "%";
+
+            // Sync water-fill text with progress percentage
+            var waterFill = (100 - percent) + "%";
+            var wt = document.querySelector(".water-text");
+            if (wt) wt.style.setProperty("--water-fill", waterFill);
         }
-        var preloaderStart = Date.now();
+
+        function tryHidePreloader() {
+            if (modelReady && pageLoaded) {
+                var remaining = Math.max(0, minDisplayTime - (Date.now() - preloaderStart));
+                setTimeout(hidePreloader, remaining);
+            }
+        }
 
         // Real model download progress
         window.addEventListener("model-progress", function (e) {
             updateProgress(e.detail);
         });
         window.addEventListener("model-ready", function () {
+            modelReady = true;
             updateProgress(100);
-            var remaining = Math.max(0, 300 - (Date.now() - preloaderStart));
-            setTimeout(hidePreloader, remaining);
+            tryHidePreloader();
         });
+
+        // Wait for full page load (images, fonts, etc.)
+        window.addEventListener("load", function () {
+            pageLoaded = true;
+            updateProgress(100);
+            tryHidePreloader();
+        });
+
         updateProgress(0);
 
-        // Safety: dismiss preloader after 6s regardless
+        // Safety: dismiss preloader after 8s regardless
         setTimeout(function () {
             var el = document.getElementById("page-preloader");
             if (el && !el.classList.contains("hidden")) {
                 hidePreloader();
             }
-        }, 6000);
+        }, 8000);
     </script>
 
     <!-- Main Script (Firebase + Store Logic) -->
