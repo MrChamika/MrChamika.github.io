@@ -17,17 +17,26 @@ async function renderProducts() {
     const gridContainer = document.getElementById('products-grid');
     if (!gridContainer) return;
 
-    // Seed only if we can - failure here should not block product loading
-    try {
-        await seedInitialProducts();
-    } catch (seedErr) {
-        console.warn('Seed skipped (likely Firestore rules):', seedErr.message || seedErr);
+    // 1. Instant Cache Render (0ms delay)
+    const cachedProducts = localStorage.getItem('cached_products_catalog');
+    if (cachedProducts) {
+        try {
+            allProducts = JSON.parse(cachedProducts);
+            if (allProducts.length > 0) {
+                renderFilteredProducts();
+            }
+        } catch(e) {
+            console.warn('Failed parsing cached products', e);
+        }
     }
 
-    // Load reviews and aggregate ratings
+    // 2. Run seed non-blocking in background
+    seedInitialProducts().catch(() => {});
+
+    // 3. Run reviews and products query in parallel
     window.ratingsMap = {};
-    try {
-        const reviewsSnap = await getDocs(collection(db, 'reviews'));
+    
+    const fetchReviewsPromise = getDocs(collection(db, 'reviews')).then(reviewsSnap => {
         let productRatings = {};
         reviewsSnap.forEach(d => {
             const data = d.data();
@@ -39,28 +48,33 @@ async function renderProducts() {
         for (let pid in productRatings) {
             window.ratingsMap[pid] = (productRatings[pid].sum / productRatings[pid].count).toFixed(1);
         }
-    } catch (e) {
-        console.error('Error loading reviews for ratings:', e);
-    }
+    }).catch(e => console.error('Error loading reviews:', e));
 
     try {
         const productsRef = collection(db, 'products');
         const snapshot = await getDocs(productsRef);
+        await fetchReviewsPromise;
+
         const products = [];
         snapshot.forEach(doc => {
             products.push({ id: doc.id, ...doc.data() });
         });
 
-        gridContainer.innerHTML = '';
+        if (products.length > 0) {
+            allProducts = products;
+            localStorage.setItem('cached_products_catalog', JSON.stringify(products));
+            renderFilteredProducts();
+            return;
+        }
 
-        if (products.length === 0) {
+        // Only clear grid if zero products were found
+        if (products.length === 0 && !allProducts.length) {
             gridContainer.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
                     <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1.2rem; display: block;"></i>
                     <p>No products found in the catalog. Visit the management portal to add items.</p>
                 </div>
             `;
-            return;
         }
 
         allProducts = products;
