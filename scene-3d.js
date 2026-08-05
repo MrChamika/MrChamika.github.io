@@ -3,6 +3,11 @@
     const container = document.getElementById('canvas-container');
     if (!container) { return; }
 
+    if (typeof THREE === 'undefined') {
+        window.dispatchEvent(new CustomEvent('model-ready'));
+        return;
+    }
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0, 5);
@@ -28,85 +33,90 @@
     const jacketGroup = new THREE.Group();
     scene.add(jacketGroup);
 
-    // Lazy load the model only when container is visible
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
-            observer.disconnect();
-
-            // Download with XHR for real progress events
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'jacket.glb', true);
-            xhr.responseType = 'arraybuffer';
-            xhr.onprogress = function(e) {
-                var total = e.total || 4458960;
-                var pct = Math.round((e.loaded / total) * 100);
-                window.dispatchEvent(new CustomEvent('model-progress', { detail: pct }));
-            };
-            xhr.onerror = function() {
+    function signalModelReady() {
+        window.dispatchEvent(new CustomEvent('model-progress', { detail: 100 }));
+        // Wait one frame so the model is actually painted before revealing the page
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
                 window.dispatchEvent(new CustomEvent('model-ready'));
-            };
-            xhr.onload = function() {
-                window.dispatchEvent(new CustomEvent('model-progress', { detail: 100 }));
-                var loader = new THREE.GLTFLoader();
-                loader.parse(xhr.response, '', function(gltf) {
-                    var model = gltf.scene;
-
-                    var box = new THREE.Box3().setFromObject(model);
-                    var center = box.getCenter(new THREE.Vector3());
-                    var size = box.getSize(new THREE.Vector3());
-                    var maxDim = Math.max(size.x, size.y, size.z);
-                    var s = maxDim > 0 ? 3.0 / maxDim : 1;
-
-                    var centerMat = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
-                    var scaleMat = new THREE.Matrix4().makeScale(s, s, s);
-
-                    model.traverse(function(child) {
-                        if (!child.isMesh) return;
-
-                        child.updateWorldMatrix(true, false);
-                        var worldMat = child.matrixWorld.clone();
-
-                        var finalMat = new THREE.Matrix4().copy(worldMat);
-                        finalMat.premultiply(centerMat);
-                        finalMat.premultiply(scaleMat);
-
-                        var geo = child.geometry.clone();
-                        var pos = geo.getAttribute('position');
-                        if (pos) {
-                            var vec = new THREE.Vector3();
-                            for (var i = 0; i < pos.count; i++) {
-                                vec.fromBufferAttribute(pos, i);
-                                vec.applyMatrix4(finalMat);
-                                pos.setXYZ(i, vec.x, vec.y, vec.z);
-                            }
-                            pos.needsUpdate = true;
-                            geo.computeVertexNormals();
-                        }
-
-                        if (child.material) {
-                            var mats = Array.isArray(child.material) ? child.material : [child.material];
-                            var newMats = mats.map(function(m) {
-                                var nm = m.clone();
-                                nm.transparent = false;
-                                nm.opacity = 1;
-                                return nm;
-                            });
-                            var mesh = new THREE.Mesh(geo, newMats.length === 1 ? newMats[0] : newMats);
-                            mesh.frustumCulled = false;
-                            jacketGroup.add(mesh);
-                        }
-                    });
-
-                    window.dispatchEvent(new CustomEvent('model-ready'));
-                }, function() {
-                    window.dispatchEvent(new CustomEvent('model-ready'));
-                });
-            };
-            xhr.send();
+            });
         });
-    }, { threshold: 0 });
-    observer.observe(container);
+    }
+
+    // Load immediately (do not wait for IntersectionObserver — preloader needs real progress)
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'jacket.glb', true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onprogress = function(e) {
+        var total = e.total || 4458960;
+        var pct = Math.round((e.loaded / total) * 100);
+        window.dispatchEvent(new CustomEvent('model-progress', { detail: Math.min(pct, 99) }));
+    };
+    xhr.onerror = function() {
+        signalModelReady();
+    };
+    xhr.onload = function() {
+        window.dispatchEvent(new CustomEvent('model-progress', { detail: 99 }));
+        if (!THREE.GLTFLoader) {
+            signalModelReady();
+            return;
+        }
+        var loader = new THREE.GLTFLoader();
+        loader.parse(xhr.response, '', function(gltf) {
+            var model = gltf.scene;
+
+            var box = new THREE.Box3().setFromObject(model);
+            var center = box.getCenter(new THREE.Vector3());
+            var size = box.getSize(new THREE.Vector3());
+            var maxDim = Math.max(size.x, size.y, size.z);
+            var s = maxDim > 0 ? 3.0 / maxDim : 1;
+
+            var centerMat = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+            var scaleMat = new THREE.Matrix4().makeScale(s, s, s);
+
+            model.traverse(function(child) {
+                if (!child.isMesh) return;
+
+                child.updateWorldMatrix(true, false);
+                var worldMat = child.matrixWorld.clone();
+
+                var finalMat = new THREE.Matrix4().copy(worldMat);
+                finalMat.premultiply(centerMat);
+                finalMat.premultiply(scaleMat);
+
+                var geo = child.geometry.clone();
+                var pos = geo.getAttribute('position');
+                if (pos) {
+                    var vec = new THREE.Vector3();
+                    for (var i = 0; i < pos.count; i++) {
+                        vec.fromBufferAttribute(pos, i);
+                        vec.applyMatrix4(finalMat);
+                        pos.setXYZ(i, vec.x, vec.y, vec.z);
+                    }
+                    pos.needsUpdate = true;
+                    geo.computeVertexNormals();
+                }
+
+                if (child.material) {
+                    var mats = Array.isArray(child.material) ? child.material : [child.material];
+                    var newMats = mats.map(function(m) {
+                        var nm = m.clone();
+                        nm.transparent = false;
+                        nm.opacity = 1;
+                        return nm;
+                    });
+                    var mesh = new THREE.Mesh(geo, newMats.length === 1 ? newMats[0] : newMats);
+                    mesh.frustumCulled = false;
+                    jacketGroup.add(mesh);
+                }
+            });
+
+            signalModelReady();
+        }, function() {
+            signalModelReady();
+        });
+    };
+    xhr.send();
 
     var clock = new THREE.Clock();
     function getYOffset() {

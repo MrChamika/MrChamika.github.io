@@ -42,22 +42,26 @@ clear button fix
     <!-- Stylesheet -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
+    <!-- Critical: cover page until preloader dismisses (page + 3D model at 100%) -->
     <style>
-        .no-preloader #page-preloader {
-            display: none !important;
+        html.is-loading, html.is-loading body { overflow: hidden !important; height: 100%; }
+        #page-preloader {
+            position: fixed; inset: 0; z-index: 999999; background: #050505;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            pointer-events: all;
         }
+        html.is-loading .main-header,
+        html.is-loading .hero-container,
+        html.is-loading .products-section,
+        html.is-loading .footer,
+        html.is-loading #canvas-container,
+        html.is-loading .bg-glow { visibility: hidden; }
     </style>
-    <script>
-        if (sessionStorage.getItem('preloaderShown') === 'true') {
-            document.documentElement.classList.add('no-preloader');
-        }
-    </script>
-
-
+    <script>document.documentElement.classList.add('is-loading');</script>
 </head>
 
 <body class="theme-orange">
-    <!-- Water Fill Preloader -->
+    <!-- Water Fill Preloader — stays until page + 3D model fully loaded -->
     <div class="preloader" id="page-preloader">
         <h2 class="water-text" data-text="ITALIAN TAILORS">ITALIAN TAILORS</h2>
         <div class="preloader-bar-container">
@@ -307,64 +311,148 @@ clear button fix
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader Script (waits for page load before dismissing) -->
+    <!-- Preloader: real progress (page resources + 3D model). Reveal only at 100%. -->
     <script>
-        var modelReady = false;
-        var pageLoaded = false;
+        (function () {
+            var pageLoaded = false;
+            var modelReady = false;
+            var modelPct = 0;
+            var pagePct = 0;
+            var totalResources = 0;
+            var loadedResources = 0;
+            var dismissed = false;
 
-        function hidePreloader() {
-            updateProgress(100);
-            setTimeout(function () {
-                var el = document.getElementById("page-preloader");
-                if (el && !el.classList.contains("hidden")) {
-                    el.classList.add("hidden");
-                    sessionStorage.setItem('preloaderShown', 'true');
-                }
-            }, 400);
-        }
+            // Page assets ~40%, 3D model ~60% (jacket.glb is the heavy asset)
+            var PAGE_WEIGHT = 40;
+            var MODEL_WEIGHT = 60;
 
-        function updateProgress(pct) {
-            var percent = Math.min(pct, 100);
-            var bar = document.getElementById("preloader-bar");
-            var label = document.getElementById("preloader-percent");
-            if (bar) bar.style.width = percent + "%";
-            if (label) label.textContent = percent + "%";
+            function updateProgress(pct) {
+                var percent = Math.max(0, Math.min(100, Math.round(pct)));
+                var bar = document.getElementById("preloader-bar");
+                var label = document.getElementById("preloader-percent");
+                if (bar) bar.style.width = percent + "%";
+                if (label) label.textContent = percent + "%";
 
-            // Sync water-fill text with progress percentage
-            var waterFill = (100 - percent) + "%";
-            var wt = document.querySelector(".water-text");
-            if (wt) wt.style.setProperty("--water-fill", waterFill);
-        }
-
-        function tryHidePreloader() {
-            if (pageLoaded) {
-                hidePreloader();
+                var waterFill = (100 - percent) + "%";
+                var wt = document.querySelector(".water-text");
+                if (wt) wt.style.setProperty("--water-fill", waterFill);
             }
-        }
 
-        // Real model download progress
-        window.addEventListener("model-progress", function (e) {
-            updateProgress(e.detail);
-        });
-        window.addEventListener("model-ready", function () {
-            modelReady = true;
-            updateProgress(100);
-            tryHidePreloader();
-        });
+            function computeProgress() {
+                if (pageLoaded) pagePct = 100;
+                var pct = (pagePct * PAGE_WEIGHT + modelPct * MODEL_WEIGHT) / 100;
+                // Never show 100% until both page and model are fully ready
+                if (!pageLoaded || !modelReady) {
+                    return Math.min(pct, 99);
+                }
+                return 100;
+            }
 
-        // Wait for full page load (images, fonts, etc.)
-        window.addEventListener("load", function () {
-            pageLoaded = true;
-            updateProgress(100);
-            tryHidePreloader();
-        });
+            function refresh() {
+                updateProgress(computeProgress());
+            }
 
-        updateProgress(0);
+            function hidePreloader() {
+                if (dismissed) return;
+                dismissed = true;
+                updateProgress(100);
+                setTimeout(function () {
+                    var el = document.getElementById("page-preloader");
+                    if (el) el.classList.add("hidden");
+                    document.documentElement.classList.remove("is-loading");
+                }, 450);
+            }
 
-        // Edge case: if the load event already fired, dismiss anyway
-        if (document.readyState === "complete") {
-            tryHidePreloader();
-        }
+            function tryHidePreloader() {
+                if (pageLoaded && modelReady) {
+                    hidePreloader();
+                } else {
+                    refresh();
+                }
+            }
+
+            window.addEventListener("model-progress", function (e) {
+                modelPct = Math.min(Number(e.detail) || 0, 100);
+                refresh();
+            });
+            window.addEventListener("model-ready", function () {
+                modelReady = true;
+                modelPct = 100;
+                tryHidePreloader();
+            });
+
+            function collectResources() {
+                var nodes = document.querySelectorAll("img[src], script[src], link[rel='stylesheet'], link[rel='preload']");
+                totalResources = nodes.length;
+                if (document.fonts) totalResources += 1;
+
+                function markLoaded() {
+                    loadedResources++;
+                    if (!pageLoaded && totalResources > 0) {
+                        pagePct = Math.min(99, Math.round((loadedResources / totalResources) * 100));
+                    }
+                    refresh();
+                }
+
+                nodes.forEach(function (n) {
+                    var done = false;
+                    function once() {
+                        if (done) return;
+                        done = true;
+                        markLoaded();
+                    }
+                    if (n.tagName === "IMG" && n.complete && n.naturalWidth > 0) {
+                        once();
+                        return;
+                    }
+                    if (n.tagName === "LINK" && n.sheet) {
+                        once();
+                        return;
+                    }
+                    n.addEventListener("load", once);
+                    n.addEventListener("error", once);
+                });
+
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(function () {
+                        markLoaded();
+                    }).catch(function () {
+                        markLoaded();
+                    });
+                }
+
+                refresh();
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", collectResources);
+            } else {
+                collectResources();
+            }
+
+            window.addEventListener("load", function () {
+                pageLoaded = true;
+                pagePct = 100;
+                tryHidePreloader();
+            });
+
+            if (document.readyState === "complete") {
+                pageLoaded = true;
+                pagePct = 100;
+                tryHidePreloader();
+            }
+
+            // Safety: never stuck forever if 3D fails silently
+            setTimeout(function () {
+                if (!modelReady) {
+                    modelReady = true;
+                    modelPct = 100;
+                    tryHidePreloader();
+                }
+            }, 25000);
+
+            updateProgress(0);
+        })();
     </script>
     <!-- Main Script (Firebase + Store Logic) -->
     <script type="module" src="script.js"></script>

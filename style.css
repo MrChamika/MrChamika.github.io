@@ -72,12 +72,27 @@ body {
 }
 
 /* --- Preloader (Water Fill Effect) --- */
+html.is-loading,
+html.is-loading body {
+    overflow: hidden !important;
+    height: 100%;
+}
+
+html.is-loading .main-header,
+html.is-loading .hero-container,
+html.is-loading .products-section,
+html.is-loading .footer,
+html.is-loading #canvas-container,
+html.is-loading .bg-glow {
+    visibility: hidden;
+}
+
 .preloader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     background: #050505;
     z-index: 999999;
     display: flex;
@@ -85,6 +100,7 @@ body {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    pointer-events: all;
     transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
 }
 
