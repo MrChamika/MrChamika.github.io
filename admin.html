@@ -225,6 +225,50 @@
                 </div>
             </div>
 
+            <!-- PayHere Gateway Settings -->
+            <div style="margin-top: 40px;">
+                <div class="list-header">
+                    <div>
+                        <h2 class="card-title"><i class="fa-solid fa-shield-halved"></i> PayHere Settings</h2>
+                        <p class="card-subtitle">Configure card payments. Use Sandbox first, then switch to Live.</p>
+                    </div>
+                    <button type="button" class="reset-btn" onclick="window.savePayHereSettings()">
+                        <i class="fa-solid fa-save"></i> Save PayHere
+                    </button>
+                </div>
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; max-width: 640px;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; color:#aaa; margin-bottom:4px;">Merchant ID</label>
+                        <input type="text" id="payhere-merchant-id" placeholder="e.g. 122XXXX"
+                            style="width:100%; padding:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; color:#aaa; margin-bottom:4px;">Merchant Secret</label>
+                        <input type="password" id="payhere-merchant-secret" placeholder="From PayHere Integrations → Domain"
+                            style="width:100%; padding:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                        <p style="font-size:0.72rem; color:#888; margin-top:6px;">Required to generate the payment hash. Keep this private.</p>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; color:#aaa; margin-bottom:4px;">Notify URL (optional)</label>
+                        <input type="url" id="payhere-notify-url" placeholder="https://your-backend.com/payhere/notify"
+                            style="width:100%; padding:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;">
+                        <p style="font-size:0.72rem; color:#888; margin-top:6px;">Server callback URL. Leave empty for now — client success callback still marks orders paid.</p>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#ddd;">
+                        <input type="checkbox" id="payhere-sandbox" checked>
+                        Sandbox mode (test payments)
+                    </label>
+                    <div id="payhere-status" style="font-size:0.85rem; color:#aaa;"></div>
+                    <div style="font-size:0.78rem; color:#999; line-height:1.5; padding:12px; background:rgba(255,255,255,0.04); border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <strong style="color:#ccc;">Setup steps:</strong><br>
+                        1. Create account at <a href="https://sandbox.payhere.lk" target="_blank" rel="noopener" style="color:#7ec8ff;">sandbox.payhere.lk</a> (test) or <a href="https://www.payhere.lk" target="_blank" rel="noopener" style="color:#7ec8ff;">payhere.lk</a> (live)<br>
+                        2. Integrations → Add Domain/App → <code style="color:#ffb070;">mrchamika.github.io</code><br>
+                        3. Copy Merchant ID + Merchant Secret here and Save<br>
+                        4. Test with sandbox cards from PayHere docs
+                    </div>
+                </div>
+            </div>
+
             <!-- New Payment Methods Section -->
             <div style="margin-top: 40px;">
                 <div class="list-header">

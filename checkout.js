@@ -1,8 +1,29 @@
-import { db, auth, getPayHereConfig } from './firebase-setup.js';
+import { db, auth, getPayHereConfig, seedPaymentMethods, buildPayHereHash } from './firebase-setup.js';
 import { collection, getDocs, addDoc, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { sendOrderConfirmation, sendAdminOrderNotification } from './emailjs-config.js';
 import './auth-header-helper.js';
+
+function paymentMethodIcon(name) {
+    const n = (name || '').toLowerCase();
+    if (n.includes('card') || n.includes('payhere')) return 'fa-credit-card';
+    if (n.includes('bank') || n.includes('transfer')) return 'fa-building-columns';
+    if (n.includes('cash') || n.includes('cod') || n.includes('delivery')) return 'fa-money-bill-wave';
+    return 'fa-wallet';
+}
+
+function renderPaymentOptions(methods) {
+    return methods.map((m, i) => {
+        const name = m.name || 'Payment';
+        const icon = paymentMethodIcon(name);
+        return `
+            <label class="payment-method">
+                <input type="radio" name="payment_method" value="${name}" ${i === 0 ? 'checked' : ''} required>
+                <span><i class="fa-solid ${icon}" style="margin-right:8px;opacity:0.7;"></i>${name}</span>
+            </label>
+        `;
+    }).join('');
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -35,44 +56,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Fetch Payment Methods
+    // Ensure defaults exist, then fetch Payment Methods
     try {
+        await seedPaymentMethods();
         const pmRef = collection(db, 'payment_methods');
         const snapshot = await getDocs(pmRef);
-        let methodsHTML = '';
-        
-        let methodsCount = 0;
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            methodsHTML += `
-                <label class="payment-method">
-                    <input type="radio" name="payment_method" value="${data.name || ''}" required>
-                    <span>${data.name || ''}</span>
-                </label>
-            `;
-            methodsCount++;
+        const methods = [];
+        snapshot.forEach((d) => {
+            methods.push({ id: d.id, ...d.data() });
         });
 
-        if (methodsCount === 0) {
-            methodsHTML = `
-                <label class="payment-method">
-                    <input type="radio" name="payment_method" value="Cash on Delivery" required>
-                    <span>Cash on Delivery</span>
-                </label>
-            `;
+        // Prefer COD first, then card/payhere, then others
+        methods.sort((a, b) => {
+            const rank = (n) => {
+                const s = (n || '').toLowerCase();
+                if (s.includes('cash') || s.includes('delivery')) return 0;
+                if (s.includes('card') || s.includes('payhere')) return 1;
+                return 2;
+            };
+            return rank(a.name) - rank(b.name);
+        });
+
+        if (methods.length === 0) {
+            methods.push(
+                { name: 'Cash on Delivery' },
+                { name: 'Card Payment (PayHere)' }
+            );
         }
 
-        pmContainer.innerHTML = methodsHTML;
+        pmContainer.innerHTML = renderPaymentOptions(methods);
         placeBtn.disabled = false;
 
     } catch (e) {
         console.error("Error fetching payment methods", e);
-        pmContainer.innerHTML = `
-            <label class="payment-method">
-                <input type="radio" name="payment_method" value="Cash on Delivery" required>
-                <span>Cash on Delivery</span>
-            </label>
-        `;
+        pmContainer.innerHTML = renderPaymentOptions([
+            { name: 'Cash on Delivery' },
+            { name: 'Card Payment (PayHere)' }
+        ]);
         placeBtn.disabled = false;
     }
 
@@ -117,27 +137,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // PayHere flow
                 const config = await getPayHereConfig();
 
-                if (!config || !config.merchant_id) {
-                    alert('PayHere payment is not configured yet. Please contact support.');
+                if (!config || !config.merchant_id || !config.merchant_secret) {
+                    alert('PayHere payment is not configured yet. Add Merchant ID and Secret in the Admin panel.');
                     placeBtn.disabled = false;
                     placeBtn.textContent = 'Place Order Now';
                     return;
                 }
 
+                if (!formData.phone || formData.phone.trim().length < 9) {
+                    alert('Please enter a valid phone number for card payment.');
+                    placeBtn.disabled = false;
+                    placeBtn.textContent = 'Place Order Now';
+                    return;
+                }
+
+                const amountStr = Number(total).toFixed(2);
+                const currency = 'LKR';
+                const hash = buildPayHereHash(
+                    config.merchant_id,
+                    orderId,
+                    amountStr,
+                    currency,
+                    config.merchant_secret
+                );
+
+                await updateDoc(doc(db, 'orders', orderId), {
+                    status: 'pending_payment',
+                    paymentStatus: 'pending_payment'
+                });
+
                 const payment = {
                     sandbox: config.sandbox !== false,
                     merchant_id: config.merchant_id,
-                    return_url: window.location.href.split('?')[0],
-                    cancel_url: window.location.href.split('?')[0],
-                    notify_url: config.notify_url || '',
+                    // Must be undefined for PayHere JS popup checkout
+                    return_url: undefined,
+                    cancel_url: undefined,
+                    notify_url: config.notify_url || undefined,
                     order_id: orderId,
-                    items: cart.map(item => item.title).join(', '),
-                    currency: 'LKR',
-                    amount: total,
+                    items: cart.map(item => item.title).join(', ').slice(0, 255),
+                    currency: currency,
+                    amount: amountStr,
+                    hash: hash,
                     first_name: formData.fname,
                     last_name: formData.lname,
                     email: formData.email,
-                    phone: config.merchant_phone || '',
+                    phone: formData.phone,
                     address: formData.address,
                     city: formData.city,
                     country: 'Sri Lanka',

@@ -1,4 +1,4 @@
-import { db, auth, seedInitialProducts } from './firebase-setup.js';
+import { db, auth, seedInitialProducts, seedPaymentMethods, getPayHereConfig, savePayHereConfig } from './firebase-setup.js';
 import { collection, getDocs, doc, setDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -100,6 +100,11 @@ async function initAdminData() {
         console.error('Seed failed:', e);
     }
     try {
+        await seedPaymentMethods();
+    } catch(e) {
+        console.error('Payment methods seed failed:', e);
+    }
+    try {
         await renderCatalog();
     } catch(e) {
         console.error('Catalog render failed:', e);
@@ -114,6 +119,7 @@ async function initAdminData() {
     renderPaymentMethods();
     renderOrders();
     loadSocialLinks();
+    loadPayHereSettings();
 
     // Bind reset button
     document.getElementById('reset-catalog-btn')?.addEventListener('click', resetStore);
@@ -589,7 +595,63 @@ window.deletePaymentMethod = async (id) => {
     renderPaymentMethods();
 };
 
-// â”€â”€ Orders Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function loadPayHereSettings() {
+    const status = document.getElementById('payhere-status');
+    try {
+        const config = await getPayHereConfig();
+        if (!config) {
+            if (status) status.textContent = 'Not configured yet - enter credentials below.';
+            return;
+        }
+        const idEl = document.getElementById('payhere-merchant-id');
+        const secretEl = document.getElementById('payhere-merchant-secret');
+        const notifyEl = document.getElementById('payhere-notify-url');
+        const sandboxEl = document.getElementById('payhere-sandbox');
+        if (idEl) idEl.value = config.merchant_id || '';
+        if (secretEl) secretEl.value = config.merchant_secret || '';
+        if (notifyEl) notifyEl.value = config.notify_url || '';
+        if (sandboxEl) sandboxEl.checked = config.sandbox !== false;
+        if (status) {
+            status.style.color = config.merchant_id && config.merchant_secret ? '#4cd137' : '#aaa';
+            status.textContent = config.merchant_id && config.merchant_secret
+                ? `Configured (${config.sandbox !== false ? 'Sandbox' : 'Live'}) - Merchant ID ${config.merchant_id}`
+                : 'Incomplete - Merchant ID and Secret are required.';
+        }
+    } catch (e) {
+        console.error(e);
+        if (status) {
+            status.style.color = '#ff4757';
+            status.textContent = 'Failed to load PayHere settings.';
+        }
+    }
+}
+
+window.savePayHereSettings = async () => {
+    const merchant_id = document.getElementById('payhere-merchant-id')?.value.trim() || '';
+    const merchant_secret = document.getElementById('payhere-merchant-secret')?.value.trim() || '';
+    const notify_url = document.getElementById('payhere-notify-url')?.value.trim() || '';
+    const sandbox = !!document.getElementById('payhere-sandbox')?.checked;
+    const status = document.getElementById('payhere-status');
+
+    if (!merchant_id || !merchant_secret) {
+        showToast('Merchant ID and Merchant Secret are required.', 'error');
+        return;
+    }
+
+    try {
+        await savePayHereConfig({ merchant_id, merchant_secret, notify_url, sandbox });
+        showToast('PayHere settings saved.');
+        if (status) {
+            status.style.color = '#4cd137';
+            status.textContent = `Configured (${sandbox ? 'Sandbox' : 'Live'}) - Merchant ID ${merchant_id}`;
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Failed to save PayHere settings. Check Firestore rules.', 'error');
+    }
+};
+
+// Orders Dashboard
 async function renderOrders() {
     const ordersContainer = document.getElementById('orders-list');
     if (!ordersContainer) return;

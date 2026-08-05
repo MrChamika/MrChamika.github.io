@@ -57,12 +57,22 @@ clear button fix
         html.is-loading #canvas-container,
         html.is-loading .bg-glow { visibility: hidden; }
     </style>
-    <script>document.documentElement.classList.add('is-loading');</script>
+    <script>
+        // Show preloader only on the first visit in this browser session
+        try {
+            window.__showPreloader = !sessionStorage.getItem('preloaderShown');
+        } catch (e) {
+            window.__showPreloader = true;
+        }
+        if (window.__showPreloader) {
+            document.documentElement.classList.add('is-loading');
+        }
+    </script>
 </head>
 
 <body class="theme-orange">
-    <!-- Water Fill Preloader — stays until page + 3D model fully loaded -->
-    <div class="preloader" id="page-preloader">
+    <!-- Water Fill Preloader — first session visit only; stays until page + 3D model fully loaded -->
+    <div class="preloader" id="page-preloader" style="display:none">
         <h2 class="water-text" data-text="ITALIAN TAILORS">ITALIAN TAILORS</h2>
         <div class="preloader-bar-container">
             <div class="preloader-bar">
@@ -71,6 +81,17 @@ clear button fix
             <span class="preloader-percent" id="preloader-percent">0%</span>
         </div>
     </div>
+    <script>
+        (function () {
+            var el = document.getElementById('page-preloader');
+            if (!el) return;
+            if (window.__showPreloader) {
+                el.style.display = '';
+            } else {
+                el.remove();
+            }
+        })();
+    </script>
 
     <!-- Three.js Canvas Container -->
     <div id="canvas-container"></div>
@@ -113,7 +134,7 @@ clear button fix
         <section class="left-panel">
             <div class="content-wrapper">
                 <h1 class="main-headline">
-                    <span class="headline-top">3Clothings</span>
+                    <span class="headline-top">Clothings</span>
                     <span class="headline-bottom">Men's Wear</span>
                 </h1>
                 <p class="description-text">
@@ -311,9 +332,11 @@ clear button fix
     <!-- 3D Scene (deferred, executes after Three.js dependencies) -->
     <script defer src="scene-3d.js"></script>
 
-    <!-- Preloader: real progress (page resources + 3D model). Reveal only at 100%. -->
+    <!-- Preloader: real progress (page resources + 3D model). Reveal only at 100%. First session visit only. -->
     <script>
         (function () {
+            if (!window.__showPreloader) return;
+
             var pageLoaded = false;
             var modelReady = false;
             var modelPct = 0;
@@ -355,6 +378,9 @@ clear button fix
             function hidePreloader() {
                 if (dismissed) return;
                 dismissed = true;
+                try {
+                    sessionStorage.setItem("preloaderShown", "1");
+                } catch (e) { /* ignore */ }
                 updateProgress(100);
                 setTimeout(function () {
                     var el = document.getElementById("page-preloader");
