@@ -1160,7 +1160,7 @@ html.is-loading .bg-glow {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
     .menu-toggle {
         display: flex;
     }
