@@ -70,7 +70,11 @@ clear button fix
         html.is-loading .bg-glow {
             visibility: hidden;
         }
+
+    
+
     </style>
+    
     <script>
         // Show preloader only on the first visit in this browser session
         try {
@@ -82,6 +86,26 @@ clear button fix
             document.documentElement.classList.add('is-loading');
         }
     </script>
+
+    
+
+    <style>
+        .elfsight-app-7954689c-9dfd-4eaa-b8f2-98e45a033d04 {
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        .elfsight-app-7954689c-9dfd-4eaa-b8f2-98e45a033d04::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 35px !important;
+            background: #fff !important;
+            z-index: 99999 !important;
+            pointer-events: none !important;
+        }
+    </style>
 </head>
 
 <body class="theme-orange">
@@ -318,6 +342,7 @@ clear button fix
     <!-- Elfsight Instagram Feed | Untitled Instagram Feed -->
     <script src="https://elfsightcdn.com/platform.js" async></script>
     <div class="elfsight-app-7954689c-9dfd-4eaa-b8f2-98e45a033d04" data-elfsight-app-lazy></div>
+
     <!-- Site Footer -->
     <footer class="site-footer">
         <div class="footer-inner">
