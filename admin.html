@@ -44,10 +44,57 @@
     </header>
 
     <main class="admin-container">
+        <aside class="admin-sidebar" aria-label="Control panel navigation">
+            <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="false" aria-controls="admin-nav">
+                <i class="fa-solid fa-bars"></i><span>Menu</span>
+            </button>
+            <nav class="admin-nav" id="admin-nav">
+                <a class="admin-nav-link active" href="#reports" data-panel="reports"><i class="fa-solid fa-chart-line"></i> Reports</a>
+                <a class="admin-nav-link" href="#products" data-panel="products"><i class="fa-solid fa-shirt"></i> Products</a>
+                <a class="admin-nav-link" href="#orders" data-panel="orders"><i class="fa-solid fa-box-open"></i> Orders</a>
+                <a class="admin-nav-link" href="#payments" data-panel="payments"><i class="fa-solid fa-credit-card"></i> Payments</a>
+                <a class="admin-nav-link" href="#social" data-panel="social"><i class="fa-solid fa-hashtag"></i> Social Links</a>
+            </nav>
+        </aside>
 
-        <!-- Left Side: Add Product Form -->
+        <div class="admin-content">
+            <section class="admin-panel active" id="reports" data-panel="reports" aria-labelledby="reports-title">
+                <div class="panel-heading">
+                    <div>
+                        <h1 id="reports-title"><i class="fa-solid fa-chart-line"></i> Business Reports</h1>
+                        <p>Sales and customer performance based on your store orders.</p>
+                    </div>
+                    <div class="report-periods" role="group" aria-label="Reporting period">
+                        <button class="period-btn" type="button" data-period="7">7 days</button>
+                        <button class="period-btn active" type="button" data-period="30">30 days</button>
+                        <button class="period-btn" type="button" data-period="month">This month</button>
+                        <button class="period-btn" type="button" data-period="all">All time</button>
+                    </div>
+                </div>
+                <div id="reports-loading" class="panel-loading">Loading reports…</div>
+                <div id="reports-content" hidden>
+                    <div class="report-kpis">
+                        <article class="report-kpi"><span>Paid revenue</span><strong id="metric-revenue">Rs. 0</strong></article>
+                        <article class="report-kpi"><span>Paid orders</span><strong id="metric-paid-orders">0</strong></article>
+                        <article class="report-kpi"><span>Average order value</span><strong id="metric-aov">Rs. 0</strong></article>
+                        <article class="report-kpi"><span>Unique customers</span><strong id="metric-customers">0</strong></article>
+                        <article class="report-kpi"><span>Repeat customers</span><strong id="metric-repeat-customers">0</strong></article>
+                        <article class="report-kpi report-kpi-status"><span>Order status</span><strong><b id="metric-pending">0</b> pending · <b id="metric-cancelled">0</b> cancelled</strong></article>
+                    </div>
+                    <div class="report-grid">
+                        <article class="report-card report-trend-card"><h2>Paid sales trend</h2><div id="sales-trend" class="sales-trend"></div></article>
+                        <article class="report-card"><h2>Payment methods</h2><div id="payment-breakdown" class="report-list"></div></article>
+                        <article class="report-card"><h2>Top products</h2><div id="top-products" class="report-list"></div></article>
+                        <article class="report-card"><h2>Recent paid orders</h2><div id="recent-paid-orders" class="recent-orders"></div></article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="admin-panel" id="products" data-panel="products" aria-labelledby="products-title">
+
+        <!-- Product creation and catalog -->
         <section class="admin-card form-section">
-            <h2 class="card-title"><i class="fa-solid fa-plus-circle"></i> Add New Product</h2>
+            <h2 class="card-title" id="products-title"><i class="fa-solid fa-plus-circle"></i> Add New Product</h2>
             <p class="card-subtitle">Create a new puffer jacket variant. Fields marked * are required.</p>
 
             <form id="add-product-form" class="product-form">
@@ -225,11 +272,16 @@
                 </div>
             </div>
 
+        </section>
+            </section>
+
+            <section class="admin-panel" id="payments" data-panel="payments" aria-labelledby="payments-title">
+            <section class="admin-card settings-card">
             <!-- PayHere Gateway Settings -->
             <div style="margin-top: 40px;">
                 <div class="list-header">
                     <div>
-                        <h2 class="card-title"><i class="fa-solid fa-shield-halved"></i> PayHere Settings</h2>
+                        <h2 class="card-title" id="payments-title"><i class="fa-solid fa-shield-halved"></i> PayHere Settings</h2>
                         <p class="card-subtitle">Configure card payments. Use Sandbox first, then switch to Live.</p>
                     </div>
                     <button type="button" class="reset-btn" onclick="window.savePayHereSettings()">
@@ -282,12 +334,16 @@
                 </div>
                 <div id="payment-methods-list" style="margin-top: 15px;"></div>
             </div>
+            </section>
+            </section>
 
-            <!-- New Social Media Section -->
+            <section class="admin-panel" id="social" data-panel="social" aria-labelledby="social-title">
+            <section class="admin-card settings-card">
+            <!-- Social Media Section -->
             <div style="margin-top: 40px;">
                 <div class="list-header">
                     <div>
-                        <h2 class="card-title"><i class="fa-solid fa-hashtag"></i> Social Media Links</h2>
+                        <h2 class="card-title" id="social-title"><i class="fa-solid fa-hashtag"></i> Social Media Links</h2>
                         <p class="card-subtitle">Update links for the storefront icons.</p>
                     </div>
                     <button type="button" class="reset-btn" onclick="window.saveSocialLinks()">
@@ -312,37 +368,46 @@
                     </div>
                 </div>
             </div>
+            </section>
+            </section>
 
-            <!-- New Orders Section -->
+            <section class="admin-panel" id="orders" data-panel="orders" aria-labelledby="orders-title">
+            <section class="admin-card settings-card">
+            <!-- Orders Section -->
+            <div style="margin-top: 40px;">
             <div style="margin-top: 40px;">
                 <div class="list-header">
                     <div>
-                        <h2 class="card-title"><i class="fa-solid fa-box-open"></i> Customer Orders</h2>
+                        <h2 class="card-title" id="orders-title"><i class="fa-solid fa-box-open"></i> Customer Orders</h2>
                         <p class="card-subtitle">Recent orders placed on the storefront.</p>
                     </div>
-                    <button type="button" class="reset-btn" id="clear-orders-btn">
+                    <button type="button" class="reset-btn" id="clear-orders-btn" onclick="if(window.clearOrders) window.clearOrders();">
                         <i class="fa-solid fa-trash-can"></i> Clear All Orders
                     </button>
                 </div>
-                <div id="orders-list" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
+                <div id="orders-list" style="margin-top: 15px; max-height: 500px; overflow-y: auto;"></div>
             </div>
         </section>
+            </section>
+        </div>
 
     </main>
 
     <!-- Main Controller Scripts -->
     <script>
-        (function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var btn = document.getElementById("clear-orders-btn");
             if (btn) {
-                btn.addEventListener("click", function () {
-                    if (window.clearOrders) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    if (typeof window.clearOrders === 'function') {
                         window.clearOrders();
                     }
                 });
             }
-        })();
+        });
     </script>
+    <script type="module" src="admin-enhancements.js"></script>
     <script type="module" src="admin.js"></script>
 </body>
 

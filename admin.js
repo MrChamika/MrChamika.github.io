@@ -1,9 +1,9 @@
-import { db, auth, seedInitialProducts, seedPaymentMethods, getPayHereConfig, savePayHereConfig } from './firebase-setup.js';
+﻿import { db, auth, seedInitialProducts, seedPaymentMethods, getPayHereConfig, savePayHereConfig } from './firebase-setup.js';
 import { collection, getDocs, doc, setDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // =============================================
-//  ITALIAN TAILORS � ADMIN CONTROL PORTAL JS
+//  ITALIAN TAILORS � ADMIN CONTROL PORTAL JS
 // =============================================
 
 // â”€â”€ Auth Handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -62,33 +62,7 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 2900);
 }
 
-async function clearOrders() {
-    if (!confirm("Are you sure you want to DELETE ALL past orders? This cannot be undone.")) return;
 
-    const btn = document.getElementById("clear-orders-btn");
-    if (btn) { btn.disabled = true; btn.textContent = "Deleting..."; }
-
-    const container = document.getElementById("orders-list");
-    if (container) container.innerHTML = '<div style="padding:20px;color:#aaa;">Deleting orders...</div>';
-
-    try {
-        const snapshot = await getDocs(collection(db, "orders"));
-        let count = 0;
-        for (const d of snapshot.docs) {
-            await deleteDoc(doc(db, "orders", d.id));
-            count++;
-        }
-        showToast(`Deleted ${count} order(s).`, "success");
-        renderOrders();
-    } catch (e) {
-        console.error(e);
-        alert("Failed to clear orders: " + e.message + "\n\nCheck the browser console for details.");
-    }
-
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Clear All Orders'; }
-};
-
-window.clearOrders = clearOrders;
 
 
 // â”€â”€ Admin Data Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -117,7 +91,6 @@ async function initAdminData() {
         }
     }
     renderPaymentMethods();
-    renderOrders();
     loadSocialLinks();
     loadPayHereSettings();
 
@@ -651,31 +624,8 @@ window.savePayHereSettings = async () => {
     }
 };
 
-// Orders Dashboard
-async function renderOrders() {
-    const ordersContainer = document.getElementById('orders-list');
-    if (!ordersContainer) return;
 
-    const snapshot = await getDocs(collection(db, 'orders'));
-    let html = '';
-    snapshot.forEach(doc => {
-        const order = doc.data();
-        html += `
-            <div style="background: rgba(25,25,25,0.6); padding: 15px; margin-bottom: 10px; border-radius: 8px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                    <strong>Order: ${doc.id}</strong>
-                    <span style="color:#aaa;">${new Date(order.date).toLocaleDateString()}</span>
-                </div>
-                <div>Customer: ${order.fname} ${order.lname}</div>
-                <div>Email: ${order.email}</div>
-                <div>Address: ${order.address}, ${order.city}</div>
-                <div>Payment Method: ${order.paymentMethod}</div>
-                <div style="margin-top: 10px; color:#ff6a00; font-weight:bold;">Total: Rs. ${order.total}</div>
-            </div>
-        `;
-    });
-    ordersContainer.innerHTML = html || '<div style="color:#aaa;">No orders yet.</div>';
-}
+
 
 // â”€â”€ Social Media Links Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadSocialLinks() {
